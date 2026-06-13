@@ -461,9 +461,9 @@
             tabPage4.Controls.Add(btnSwitchBranch);
             tabPage4.Controls.Add(label5);
             tabPage4.Controls.Add(tbxBranchName);
-            tabPage4.Location = new Point(4, 26);
+            tabPage4.Location = new Point(4, 24);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(525, 399);
+            tabPage4.Size = new Size(525, 401);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "ブランチ";
             tabPage4.UseVisualStyleBackColor = true;
@@ -481,11 +481,11 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(65, 74);
+            label7.Location = new Point(65, 83);
             label7.Name = "label7";
-            label7.Size = new Size(416, 75);
+            label7.Size = new Size(416, 45);
             label7.TabIndex = 4;
-            label7.Text = "初期ブランチは「sd3」です。mainは古いため一部の機能は使用できません。\r\nFLUX.1とSD3は「sd3」のみ対応です。\r\n\r\nブランチ切り替え後は、GUIのユーティリティの更新タブで\r\n「pythonパッケージのみ更新」にチェックをつけて「sd-scriptsのアップデート」をしてください。";
+            label7.Text = "初期ブランチは「main」です。\r\nブランチ切り替え後は、GUIのユーティリティの更新タブで\r\n「pythonパッケージのみ更新」にチェックをつけて「sd-scriptsのアップデート」をしてください。";
             // 
             // label6
             // 
