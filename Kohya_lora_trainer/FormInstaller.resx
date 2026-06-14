@@ -121,21 +121,20 @@
     <value>上のボタンを押すとインストール先フォルダの選択画面が出ます。
 フォルダはGUIが入ったフォルダと同階層(GUIのexeが入ったフォルダの一つ上)を指定するか、
 インストール後にGUIのフォルダをsd-scriptsと同階層に移動させてください。
+(注意: フォルダの名前に半角英数字以外と空白は不具合の原因になるのでNG)
+
 選択後、ターミナルが立ち上がり、必要なコマンドを実行します。
 なお、gitとpythonは事前にインストールする必要があります。
-最後にaccelerate configの質問が出るのでターミナルで
-数字キーとEnterキーを用いて以下のように答えてください。
+最後にaccelerate configの質問が出るのでターミナルで以下の操作をしてください。
 なお、過去にaccelerateの設定をしたことがあれば、
 質問を無視してターミナルを閉じてもかまいません。</value>
   </data>
   <data name="label2.Text" xml:space="preserve">
-    <value>- This machine
-- No distributed training
-- NO
-- NO
-- NO
-- all
-- fp16
+    <value>数字キーでThis machineを選択してEnter押す
+数字キーでNo distributed trainingを選択してEnter押す
+noと入力してEnter押す を4回やる
+数字キーでallを選択してEnter押す
+数字キーでfp16を選択してEnter押す
 注意:日本語環境では選択のためにカーソルキーを押すと落ちます。
 数字キーの0、1、2……で選択できますので、そちらを使ってください。
 
