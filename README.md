@@ -59,13 +59,13 @@ v1.6以降でご利用いただけます。
 ### B.手動インストール
 簡易インストールがうまくいかないか違うバージョンのtorchを入れたい場合はこちら
 
-1.[sd-scriptsのREADME](https://github.com/kohya-ss/sd-scripts/blob/main/README-ja.md)の方法sd-scriptsの導入をする。※`pip install xformers`は不要
+1.[sd-scriptsのREADME](https://github.com/kohya-ss/sd-scripts/blob/main/README-ja.md)の方法sd-scriptsの導入をする
 
 2.[releases](https://github.com/RedRayz/Kohya_lora_param_gui/releases)からkohya_lora_gui-x.x.x.zipをDLする
 
 3.zipを解凍してできたフォルダをsd-scriptsと同じ階層のフォルダに移動させる(sd-scriptsの中ではない!)
 
-注意:ディレクトリの階層は次のようにします。また、sd-scriptsとGUIの親フォルダの名称にスペースや日本語などを使用しますと、不具合を引き起こすことがありますのでご注意ください。
+注意:ディレクトリの階層は次のようにします。また、sd-scriptsとGUIの親フォルダの名称に半角英数字以外と空白を使用しますと、不具合を引き起こすことがありますので、名称は半角英数字のみで設定してください。
 
 ※LECO、SD3、FLUX.1の学習機能は廃止しました。
 ![directory](./images/image1.png)
