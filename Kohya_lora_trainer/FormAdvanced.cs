@@ -503,6 +503,7 @@ namespace Kohya_lora_trainer
             para.CrossAttnLR = crossattnlr;
             para.MlpLR = mlplr;
             para.TimestepSamplingEnum = (TimestepSampling)Enum.ToObject(typeof(TimestepSampling), cbxTimestepSampling.SelectedIndex);
+            para.ConvertVaeTwoD = cbxConvertVaeTwoD.Checked;
             Close();
         }
 
@@ -660,6 +661,8 @@ namespace Kohya_lora_trainer
 
             cbxDisableVAECache.Checked = para.DisableVAECache;
             cbxCpuOffloadAsync.Checked = para.CpuOffloadAsync;
+            cbxConvertVaeTwoD.Checked = para.ConvertVaeTwoD;
+
             tbxLLMAdapterLR.Text = para.LLMAdapterLR < 0f ? string.Empty : para.LLMAdapterLR.ToString("g");
             tbxSelfAttnLR.Text = para.SelfAttnLR < 0f ? string.Empty : para.SelfAttnLR.ToString("g");
             tbxCrossAttnLR.Text = para.CrossAttnLR < 0f ? string.Empty : para.CrossAttnLR.ToString("g");

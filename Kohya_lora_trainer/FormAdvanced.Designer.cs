@@ -255,6 +255,7 @@ namespace Kohya_lora_trainer
             label60 = new Label();
             nudSigmoidScale = new NumericUpDown();
             label56 = new Label();
+            cbxConvertVaeTwoD = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)tbrCpuThreads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudLRSchedulerCycle).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudNoiseOffset).BeginInit();
@@ -1065,7 +1066,7 @@ namespace Kohya_lora_trainer
             // 
             // nudBlocksToSwap
             // 
-            nudBlocksToSwap.Location = new Point(434, 159);
+            nudBlocksToSwap.Location = new Point(435, 133);
             nudBlocksToSwap.Maximum = new decimal(new int[] { 26, 0, 0, 0 });
             nudBlocksToSwap.Name = "nudBlocksToSwap";
             nudBlocksToSwap.Size = new Size(96, 23);
@@ -1077,16 +1078,16 @@ namespace Kohya_lora_trainer
             cbxDisableVAECache.AutoSize = true;
             cbxDisableVAECache.Location = new Point(340, 37);
             cbxDisableVAECache.Name = "cbxDisableVAECache";
-            cbxDisableVAECache.Size = new Size(178, 19);
+            cbxDisableVAECache.Size = new Size(136, 19);
             cbxDisableVAECache.TabIndex = 4;
-            cbxDisableVAECache.Text = "VAEのキャッシュ無効化(Anima)";
+            cbxDisableVAECache.Text = "VAEのキャッシュ無効化";
             toolTip1.SetToolTip(cbxDisableVAECache, "VAEエンコードのメモリ使用量を大幅に減らし、高速化する");
             cbxDisableVAECache.UseVisualStyleBackColor = true;
             // 
             // cbxCpuOffloadAsync
             // 
             cbxCpuOffloadAsync.AutoSize = true;
-            cbxCpuOffloadAsync.Location = new Point(340, 104);
+            cbxCpuOffloadAsync.Location = new Point(340, 87);
             cbxCpuOffloadAsync.Name = "cbxCpuOffloadAsync";
             cbxCpuOffloadAsync.Size = new Size(231, 19);
             cbxCpuOffloadAsync.TabIndex = 5;
@@ -2011,7 +2012,7 @@ namespace Kohya_lora_trainer
             // label55
             // 
             label55.AutoSize = true;
-            label55.Location = new Point(332, 159);
+            label55.Location = new Point(333, 133);
             label55.Name = "label55";
             label55.Size = new Size(96, 30);
             label55.TabIndex = 1;
@@ -2595,6 +2596,7 @@ namespace Kohya_lora_trainer
             tabPage8.Controls.Add(nudBlocksToSwap);
             tabPage8.Controls.Add(label55);
             tabPage8.Controls.Add(label59);
+            tabPage8.Controls.Add(cbxConvertVaeTwoD);
             tabPage8.Controls.Add(cbxDisableVAECache);
             tabPage8.Controls.Add(tbxMlpLR);
             tabPage8.Controls.Add(tbxCrossAttnLR);
@@ -2703,6 +2705,17 @@ namespace Kohya_lora_trainer
             label56.Size = new Size(205, 30);
             label56.TabIndex = 58;
             label56.Text = "#がつく項目は0を指定すると未指定にする\r\n##がつく項目は空欄で未指定にする";
+            // 
+            // cbxConvertVaeTwoD
+            // 
+            cbxConvertVaeTwoD.AutoSize = true;
+            cbxConvertVaeTwoD.Location = new Point(340, 62);
+            cbxConvertVaeTwoD.Name = "cbxConvertVaeTwoD";
+            cbxConvertVaeTwoD.Size = new Size(126, 19);
+            cbxConvertVaeTwoD.TabIndex = 4;
+            cbxConvertVaeTwoD.Text = "VAEを2D化(高速化)";
+            toolTip1.SetToolTip(cbxConvertVaeTwoD, "Qwen Image(Wan Video)のVAEから時間軸を取り除くことで\r\n計算を高速化する");
+            cbxConvertVaeTwoD.UseVisualStyleBackColor = true;
             // 
             // FormAdvanced
             // 
@@ -3033,5 +3046,6 @@ namespace Kohya_lora_trainer
         private Label label71;
         private TextBox tbxMlpLR;
         private GroupBox groupBox9;
+        private CheckBox cbxConvertVaeTwoD;
     }
 }
