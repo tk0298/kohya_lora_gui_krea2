@@ -19,11 +19,18 @@ namespace Kohya_lora_trainer
         private bool ShutdownOnly;
         private Stopwatch? stopwatch;
         private int Duration = 60;
+        private string? CurrentPresetPath = string.Empty;
 
         public TrainForm(bool shutdownOnly)
         {
             InitializeComponent();
             ShutdownOnly = shutdownOnly;
+        }
+
+        public TrainForm(bool shutdownOnly, string? currentPresetPath)
+        {
+            InitializeComponent();
+            CurrentPresetPath = currentPresetPath;
         }
 
         private void TrainForm_Load(object sender, EventArgs e)
@@ -103,7 +110,7 @@ namespace Kohya_lora_trainer
                 min = Math.Floor(min);
                 hour = Math.Floor(hour);
                 min -= hour * 60;
-                BatchProcess.LogText += ", 終了時刻:" + DateTime.Now.ToString() + ", 経過時間: " + $"{hour}時間{min}分" + sec.ToString("0.000秒");
+                BatchProcess.LogText += " 終了時刻:" + DateTime.Now.ToString() + " 経過時間: " + $"{hour}時間{min}分" + sec.ToString("0.000秒");
                 if (!string.IsNullOrWhiteSpace(para.CustomCommands))
                 {
                     BatchProcess.LogText += "\r\nコマンド実行のみ。";
@@ -240,6 +247,11 @@ namespace Kohya_lora_trainer
 
         private void TrainForm_Shown(object sender, EventArgs e)
         {
+            var para = TrainParams.Current;
+            if (para == null)
+            {
+                return;
+            }
             lblProcessingCaptions.Visible = false;
 
             if (ShutdownOnly && (Form1.CompleteAction == TrainCompleteAction.Shutdown || Form1.CompleteAction == TrainCompleteAction.Suspend))
@@ -263,7 +275,15 @@ namespace Kohya_lora_trainer
             if (BatchProcess.LogResultText && BatchProcess.IsRunning)
             {
                 StringBuilder ssb = new StringBuilder();
-                ssb.Append(TrainParams.Current.OutputPath).Append("\\").Append(TrainParams.Current.OutputName).Append(".safetensors\r\n");
+                if (!string.IsNullOrWhiteSpace(para.CustomCommands))
+                {
+                    ssb.Append(CurrentPresetPath);
+                }
+                else
+                {
+                    ssb.Append(para.OutputPath).Append("\\").Append(para.OutputName).Append(".safetensors\r\n");
+                }
+                    
 
                 BatchProcess.LogText += ssb.ToString();
             }

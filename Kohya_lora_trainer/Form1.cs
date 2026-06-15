@@ -594,7 +594,7 @@ namespace Kohya_lora_trainer
                         continue;
                     }
                     Debug.WriteLine("Start training: " + pth);
-                    Form train0 = new TrainForm(false);
+                    Form train0 = new TrainForm(false, LastOpenPresetPath);
                     train0.ShowDialog();
                     train0.Dispose();
                     BatchProcess.CompletedCount++;
@@ -611,7 +611,7 @@ namespace Kohya_lora_trainer
                 LogGenerated = true;
                 if ((CompleteAction == TrainCompleteAction.Shutdown || CompleteAction == TrainCompleteAction.Suspend) && !BatchProcess.IsCancel)
                 {
-                    Form train0 = new TrainForm(true);
+                    Form train0 = new TrainForm(true, LastOpenPresetPath);
                     train0.ShowDialog();
                     train0.Dispose();
                 }
