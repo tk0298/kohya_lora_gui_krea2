@@ -113,6 +113,7 @@ namespace Kohya_lora_trainer
             tbxSelfAttnLR = new TextBox();
             tbxCrossAttnLR = new TextBox();
             tbxMlpLR = new TextBox();
+            cbxConvertVaeTwoD = new CheckBox();
             label6 = new Label();
             label9 = new Label();
             button1 = new Button();
@@ -189,7 +190,6 @@ namespace Kohya_lora_trainer
             tabPage7 = new TabPage();
             cbxCacheTextencoderToDisk = new CheckBox();
             label51 = new Label();
-            label55 = new Label();
             label29 = new Label();
             label27 = new Label();
             tabPage5 = new TabPage();
@@ -249,13 +249,13 @@ namespace Kohya_lora_trainer
             label71 = new Label();
             label68 = new Label();
             label67 = new Label();
+            label55 = new Label();
             label59 = new Label();
             label58 = new Label();
             label61 = new Label();
             label60 = new Label();
             nudSigmoidScale = new NumericUpDown();
             label56 = new Label();
-            cbxConvertVaeTwoD = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)tbrCpuThreads).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudLRSchedulerCycle).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudNoiseOffset).BeginInit();
@@ -1066,10 +1066,10 @@ namespace Kohya_lora_trainer
             // 
             // nudBlocksToSwap
             // 
-            nudBlocksToSwap.Location = new Point(435, 133);
+            nudBlocksToSwap.Location = new Point(446, 125);
             nudBlocksToSwap.Maximum = new decimal(new int[] { 26, 0, 0, 0 });
             nudBlocksToSwap.Name = "nudBlocksToSwap";
-            nudBlocksToSwap.Size = new Size(96, 23);
+            nudBlocksToSwap.Size = new Size(74, 23);
             nudBlocksToSwap.TabIndex = 0;
             toolTip1.SetToolTip(nudBlocksToSwap, "一部のブロックをCPUに置くことで\r\n速度低下を抑えつつVRAM消費を減らす");
             // 
@@ -1171,6 +1171,17 @@ namespace Kohya_lora_trainer
             tbxMlpLR.Size = new Size(80, 23);
             tbxMlpLR.TabIndex = 6;
             toolTip1.SetToolTip(tbxMlpLR, "空欄で未指定(LRと同じ値を使用する)\r\nMLPは画風と特徴に影響が大きいとされる\r\n");
+            // 
+            // cbxConvertVaeTwoD
+            // 
+            cbxConvertVaeTwoD.AutoSize = true;
+            cbxConvertVaeTwoD.Location = new Point(340, 62);
+            cbxConvertVaeTwoD.Name = "cbxConvertVaeTwoD";
+            cbxConvertVaeTwoD.Size = new Size(126, 19);
+            cbxConvertVaeTwoD.TabIndex = 4;
+            cbxConvertVaeTwoD.Text = "VAEを2D化(高速化)";
+            toolTip1.SetToolTip(cbxConvertVaeTwoD, "Qwen Image(Wan Video)のVAEから時間軸を取り除くことで\r\n計算を高速化する");
+            cbxConvertVaeTwoD.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -1674,9 +1685,9 @@ namespace Kohya_lora_trainer
             tabPage4.Controls.Add(nudRankDropout);
             tabPage4.Controls.Add(nudClipLDropoutRate);
             tabPage4.Controls.Add(nudCaptionDropout);
-            tabPage4.Location = new Point(4, 26);
+            tabPage4.Location = new Point(4, 24);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(660, 347);
+            tabPage4.Size = new Size(660, 349);
             tabPage4.TabIndex = 4;
             tabPage4.Text = "dropout";
             tabPage4.UseVisualStyleBackColor = true;
@@ -1829,9 +1840,9 @@ namespace Kohya_lora_trainer
             page3.Controls.Add(label48);
             page3.Controls.Add(label57);
             page3.Controls.Add(nudIpNoiseGamma);
-            page3.Location = new Point(4, 26);
+            page3.Location = new Point(4, 24);
             page3.Name = "page3";
-            page3.Size = new Size(660, 347);
+            page3.Size = new Size(660, 349);
             page3.TabIndex = 10;
             page3.Text = "損失とノイズ";
             page3.UseVisualStyleBackColor = true;
@@ -1852,7 +1863,7 @@ namespace Kohya_lora_trainer
             groupBox9.Controls.Add(nudMultiresNoiseDiscount);
             groupBox9.Controls.Add(label19);
             groupBox9.Controls.Add(nudMinSNRGamma);
-            groupBox9.Location = new Point(314, 3);
+            groupBox9.Location = new Point(314, 17);
             groupBox9.Name = "groupBox9";
             groupBox9.Size = new Size(313, 261);
             groupBox9.TabIndex = 59;
@@ -1926,9 +1937,9 @@ namespace Kohya_lora_trainer
             tabPage6.Controls.Add(nudMinLRRatio);
             tabPage6.Controls.Add(nudSchedulerTimescale);
             tabPage6.Controls.Add(label47);
-            tabPage6.Location = new Point(4, 26);
+            tabPage6.Location = new Point(4, 24);
             tabPage6.Name = "tabPage6";
-            tabPage6.Size = new Size(660, 347);
+            tabPage6.Size = new Size(660, 349);
             tabPage6.TabIndex = 13;
             tabPage6.Text = "スケジューラ";
             tabPage6.UseVisualStyleBackColor = true;
@@ -2009,15 +2020,6 @@ namespace Kohya_lora_trainer
             label51.TabIndex = 9;
             label51.Text = "gradient\r\naccumulation\r\nsteps";
             // 
-            // label55
-            // 
-            label55.AutoSize = true;
-            label55.Location = new Point(333, 133);
-            label55.Name = "label55";
-            label55.Size = new Size(96, 30);
-            label55.TabIndex = 1;
-            label55.Text = "スワップする\r\nブロック数(Anima)";
-            // 
             // label29
             // 
             label29.AutoSize = true;
@@ -2061,9 +2063,9 @@ namespace Kohya_lora_trainer
             tabPage5.Controls.Add(label35);
             tabPage5.Controls.Add(tbxD0);
             tabPage5.Controls.Add(tbxGrowthRate);
-            tabPage5.Location = new Point(4, 26);
+            tabPage5.Location = new Point(4, 24);
             tabPage5.Name = "tabPage5";
-            tabPage5.Size = new Size(660, 347);
+            tabPage5.Size = new Size(660, 349);
             tabPage5.TabIndex = 5;
             tabPage5.Text = "オプティマイザ";
             tabPage5.UseVisualStyleBackColor = true;
@@ -2305,10 +2307,10 @@ namespace Kohya_lora_trainer
             tabPage2.Controls.Add(btnClearVAE);
             tabPage2.Controls.Add(btnSelectVAE);
             tabPage2.Controls.Add(label16);
-            tabPage2.Location = new Point(4, 26);
+            tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(660, 347);
+            tabPage2.Size = new Size(660, 349);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "パス";
             tabPage2.UseVisualStyleBackColor = true;
@@ -2400,9 +2402,9 @@ namespace Kohya_lora_trainer
             pageMisc.Controls.Add(tbxTokensSeparator);
             pageMisc.Controls.Add(label46);
             pageMisc.Controls.Add(tbxComment);
-            pageMisc.Location = new Point(4, 26);
+            pageMisc.Location = new Point(4, 24);
             pageMisc.Name = "pageMisc";
-            pageMisc.Size = new Size(660, 347);
+            pageMisc.Size = new Size(660, 349);
             pageMisc.TabIndex = 2;
             pageMisc.Text = "その他";
             pageMisc.UseVisualStyleBackColor = true;
@@ -2510,9 +2512,9 @@ namespace Kohya_lora_trainer
             tabPage3.Controls.Add(cbxTrainNorm);
             tabPage3.Controls.Add(cbxAlgoType);
             tabPage3.Controls.Add(label23);
-            tabPage3.Location = new Point(4, 26);
+            tabPage3.Location = new Point(4, 24);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(660, 347);
+            tabPage3.Size = new Size(660, 349);
             tabPage3.TabIndex = 11;
             tabPage3.Text = "LyCORIS";
             tabPage3.UseVisualStyleBackColor = true;
@@ -2522,9 +2524,9 @@ namespace Kohya_lora_trainer
             label64.AutoSize = true;
             label64.Location = new Point(21, 15);
             label64.Name = "label64";
-            label64.Size = new Size(163, 15);
+            label64.Size = new Size(393, 30);
             label64.TabIndex = 19;
-            label64.Text = "LyCORISの動作は保証しません。";
+            label64.Text = "LyCORISの動作は保証しません。\r\nこのタブの設定は長期間メンテナンスしていないため、動作しない可能性があります。";
             // 
             // cbxUseTucker
             // 
@@ -2650,6 +2652,15 @@ namespace Kohya_lora_trainer
             label67.TabIndex = 7;
             label67.Text = "Self-Attention LR##";
             // 
+            // label55
+            // 
+            label55.AutoSize = true;
+            label55.Location = new Point(332, 127);
+            label55.Name = "label55";
+            label55.Size = new Size(108, 15);
+            label55.TabIndex = 1;
+            label55.Text = "スワップするブロック数";
+            // 
             // label59
             // 
             label59.AutoSize = true;
@@ -2705,17 +2716,6 @@ namespace Kohya_lora_trainer
             label56.Size = new Size(205, 30);
             label56.TabIndex = 58;
             label56.Text = "#がつく項目は0を指定すると未指定にする\r\n##がつく項目は空欄で未指定にする";
-            // 
-            // cbxConvertVaeTwoD
-            // 
-            cbxConvertVaeTwoD.AutoSize = true;
-            cbxConvertVaeTwoD.Location = new Point(340, 62);
-            cbxConvertVaeTwoD.Name = "cbxConvertVaeTwoD";
-            cbxConvertVaeTwoD.Size = new Size(126, 19);
-            cbxConvertVaeTwoD.TabIndex = 4;
-            cbxConvertVaeTwoD.Text = "VAEを2D化(高速化)";
-            toolTip1.SetToolTip(cbxConvertVaeTwoD, "Qwen Image(Wan Video)のVAEから時間軸を取り除くことで\r\n計算を高速化する");
-            cbxConvertVaeTwoD.UseVisualStyleBackColor = true;
             // 
             // FormAdvanced
             // 
