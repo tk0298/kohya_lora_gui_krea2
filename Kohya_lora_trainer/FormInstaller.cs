@@ -59,7 +59,7 @@ namespace Kohya_lora_trainer
                     py = "py -3.10";
                     break;
             }
-            sb.Append(@" && git clone https://github.com/kohya-ss/sd-scripts.git && cd sd-scripts && git checkout -b sd3 origin/sd3 && ")
+            sb.Append(@" && git clone https://github.com/kohya-ss/sd-scripts.git && cd sd-scripts && ")
                 .Append(cbxUsePy.Checked ? py : "python").Append(" -m venv venv && .\\venv\\Scripts\\activate && ").Append(MyUtils.GenerateMinInstallCommands(cbxUseLatestTorch.Checked));
 
             sb.Append(" && ");

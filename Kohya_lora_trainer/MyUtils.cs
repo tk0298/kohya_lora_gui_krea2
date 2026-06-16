@@ -738,6 +738,11 @@ namespace Kohya_lora_trainer
                     sb.Append(" --unsloth_offload_checkpointing");
                 }
 
+                if (para.ConvertVaeTwoD)
+                {
+                    sb.Append(" --qwen_image_vae_2d");
+                }
+
 
                 sb.Append(" --timestep_sampling \"").Append(para.TimestepSamplingEnum.ToString().ToLower()).Append('"');
 

@@ -594,7 +594,7 @@ namespace Kohya_lora_trainer
                         continue;
                     }
                     Debug.WriteLine("Start training: " + pth);
-                    Form train0 = new TrainForm(false);
+                    Form train0 = new TrainForm(false, LastOpenPresetPath);
                     train0.ShowDialog();
                     train0.Dispose();
                     BatchProcess.CompletedCount++;
@@ -611,7 +611,7 @@ namespace Kohya_lora_trainer
                 LogGenerated = true;
                 if ((CompleteAction == TrainCompleteAction.Shutdown || CompleteAction == TrainCompleteAction.Suspend) && !BatchProcess.IsCancel)
                 {
-                    Form train0 = new TrainForm(true);
+                    Form train0 = new TrainForm(true, LastOpenPresetPath);
                     train0.ShowDialog();
                     train0.Dispose();
                 }
@@ -1471,17 +1471,17 @@ namespace Kohya_lora_trainer
 
             if (para.ShuffleCaptions && para.CacheTextencoder)
             {
-                return MessageBox.Show("Text Encoderのキャッシュとキャプションのシャッフルは併用できませんが、開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                return MessageBox.Show("Text Encoderのキャッシュとキャプションのシャッフルは併用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             if (para.CacheTextencoder && para.TokenWarmupMin > 0)
             {
-                return MessageBox.Show("Text EncoderのキャッシュとToken warmup最小タグ数は併用できませんが、開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                return MessageBox.Show("Text EncoderのキャッシュとToken warmup最小タグ数は併用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             if (para.advancedTrainType != AdvancedTrain.UNetOnly && para.CacheTextencoder)
             {
-                return MessageBox.Show("Text Encoderの学習(or両方学習)とTEのキャッシュは併用できませんが、開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                return MessageBox.Show("Text Encoderの学習(or両方学習)とTEのキャッシュは併用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
 
@@ -1510,13 +1510,19 @@ namespace Kohya_lora_trainer
                 }
                 if ((para.NoiseOffset > 0 || para.MultiresNoiseIterations > 0) && para.ZeroTerminalSNR)
                 {
-                    return MessageBox.Show("ノイズオフセットまたはMultires noiseとZero Terminal SNRの併用は望ましくありません。\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    return MessageBox.Show("ノイズオフセットまたはMultires noiseとZero Terminal SNRの併用は望ましくありません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 }
 
                 if (!para.VParameterization && para.ZeroTerminalSNR)
                 {
-                    return MessageBox.Show("Zero Terminal SNRはV Parameterizationが有効でないと動作しません(NaN演算の原因)。\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    return MessageBox.Show("Zero Terminal SNRはV Parameterizationが有効でないと動作しません(NaN演算の原因)。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 }
+            }
+
+
+            if (para.CrossAttenType == CrossAtten.xformers)
+            {
+                return MessageBox.Show("詳細設定>パフォーマンスの「Attentionの最適化」にxformersが選択されています。\r\nxformersは別途インストールが必要な上、sdpaに対する優位性はありません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
 
             return DialogResult.Yes;

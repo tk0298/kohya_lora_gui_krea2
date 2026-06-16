@@ -38,6 +38,7 @@
             cbxUseLatestTorch = new CheckBox();
             cbxPythonVersion = new ComboBox();
             label3 = new Label();
+            label4 = new Label();
             SuspendLayout();
             // 
             // btnInstall
@@ -57,16 +58,16 @@
             label1.Font = new Font("Yu Gothic UI", 9F);
             label1.Location = new Point(32, 141);
             label1.Name = "label1";
-            label1.Size = new Size(432, 135);
+            label1.Size = new Size(432, 150);
             label1.TabIndex = 1;
             label1.Text = resources.GetString("label1.Text");
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(32, 288);
+            label2.Location = new Point(32, 314);
             label2.Name = "label2";
-            label2.Size = new Size(394, 180);
+            label2.Size = new Size(394, 150);
             label2.TabIndex = 2;
             label2.Text = resources.GetString("label2.Text");
             // 
@@ -78,7 +79,7 @@
             cbxUsePy.Size = new Size(202, 19);
             cbxUsePy.TabIndex = 3;
             cbxUsePy.Text = "「python」の代わりに「py」を使用する";
-            toolTip1.SetToolTip(cbxUsePy, "ターミナルpythonとだけ表示されて何も起きないか\r\nPythonバージョンを指定する場合にチェックをつけてください");
+            toolTip1.SetToolTip(cbxUsePy, "ターミナルにpythonとだけ表示されて何も起きないか\r\nPythonバージョンを指定する場合にチェックをつけてください");
             cbxUsePy.UseVisualStyleBackColor = true;
             // 
             // cbxUseLatestTorch
@@ -113,11 +114,21 @@
             label3.TabIndex = 5;
             label3.Text = "Pythonバージョン(pyを使用する場合)";
             // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(32, 488);
+            label4.Name = "label4";
+            label4.Size = new Size(301, 30);
+            label4.TabIndex = 7;
+            label4.Text = "インストール中のエラーや操作ミスなどで\r\n失敗したらsd-scriptsフォルダを消去してからやり直してください。";
+            // 
             // FormInstaller
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(485, 488);
+            ClientSize = new Size(485, 527);
+            Controls.Add(label4);
             Controls.Add(cbxUseLatestTorch);
             Controls.Add(label3);
             Controls.Add(cbxPythonVersion);
@@ -147,5 +158,6 @@
         private ComboBox cbxPythonVersion;
         private Label label3;
         private CheckBox cbxUseLatestTorch;
+        private Label label4;
     }
 }
