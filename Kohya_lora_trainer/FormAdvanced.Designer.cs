@@ -1115,7 +1115,7 @@ namespace Kohya_lora_trainer
             nudDiscreteFlowShift.Name = "nudDiscreteFlowShift";
             nudDiscreteFlowShift.Size = new Size(73, 23);
             nudDiscreteFlowShift.TabIndex = 0;
-            toolTip1.SetToolTip(nudDiscreteFlowShift, "Anima Base 1.0は3が良いかも\r\n低い値では破綻が増加する可能性あり\r\n低いと高周波成分ばかり学習するようになる？");
+            toolTip1.SetToolTip(nudDiscreteFlowShift, "Anima Base 1.0は3が良いかも\r\n低い値では破綻が増加する可能性あり");
             nudDiscreteFlowShift.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // cbxHuberSchedule
@@ -2063,9 +2063,9 @@ namespace Kohya_lora_trainer
             tabPage5.Controls.Add(label35);
             tabPage5.Controls.Add(tbxD0);
             tabPage5.Controls.Add(tbxGrowthRate);
-            tabPage5.Location = new Point(4, 24);
+            tabPage5.Location = new Point(4, 26);
             tabPage5.Name = "tabPage5";
-            tabPage5.Size = new Size(660, 349);
+            tabPage5.Size = new Size(660, 347);
             tabPage5.TabIndex = 5;
             tabPage5.Text = "オプティマイザ";
             tabPage5.UseVisualStyleBackColor = true;
