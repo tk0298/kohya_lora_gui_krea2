@@ -58,6 +58,7 @@
             label13 = new Label();
             numericUpDown1 = new NumericUpDown();
             tabPage3 = new TabPage();
+            btnConfigureAccelerate = new Button();
             cbxUpdateType = new ComboBox();
             label4 = new Label();
             label1 = new Label();
@@ -77,6 +78,7 @@
             label11 = new Label();
             btnPurgePipCache = new Button();
             toolTip1 = new ToolTip(components);
+            label17 = new Label();
             ((System.ComponentModel.ISupportInitialize)nudTargetDim).BeginInit();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -393,6 +395,8 @@
             // 
             // tabPage3
             // 
+            tabPage3.Controls.Add(label17);
+            tabPage3.Controls.Add(btnConfigureAccelerate);
             tabPage3.Controls.Add(cbxUpdateType);
             tabPage3.Controls.Add(label4);
             tabPage3.Controls.Add(label1);
@@ -404,6 +408,16 @@
             tabPage3.TabIndex = 2;
             tabPage3.Text = "更新";
             tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // btnConfigureAccelerate
+            // 
+            btnConfigureAccelerate.Location = new Point(182, 240);
+            btnConfigureAccelerate.Name = "btnConfigureAccelerate";
+            btnConfigureAccelerate.Size = new Size(169, 33);
+            btnConfigureAccelerate.TabIndex = 6;
+            btnConfigureAccelerate.Text = "accelerate config実行";
+            btnConfigureAccelerate.UseVisualStyleBackColor = true;
+            btnConfigureAccelerate.Click += btnConfigureAccelerate_Click;
             // 
             // cbxUpdateType
             // 
@@ -427,7 +441,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(182, 220);
+            label1.Location = new Point(182, 184);
             label1.Name = "label1";
             label1.Size = new Size(174, 30);
             label1.TabIndex = 2;
@@ -435,7 +449,7 @@
             // 
             // btnInstallExtension
             // 
-            btnInstallExtension.Location = new Point(182, 173);
+            btnInstallExtension.Location = new Point(182, 137);
             btnInstallExtension.Name = "btnInstallExtension";
             btnInstallExtension.Size = new Size(169, 35);
             btnInstallExtension.TabIndex = 1;
@@ -583,6 +597,15 @@
             btnPurgePipCache.UseVisualStyleBackColor = true;
             btnPurgePipCache.Click += btnPurgePipCache_Click;
             // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(122, 276);
+            label17.Name = "label17";
+            label17.Size = new Size(306, 30);
+            label17.TabIndex = 7;
+            label17.Text = "accelerateの設定画面では、通常は以下の操作をしてください。\r\n7回Enter押す、数字キーの1を押してからEnter押す";
+            // 
             // FormUtils
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
@@ -664,5 +687,7 @@
         private ComboBox cbxClearNpzTargetSelection;
         private Label label16;
         private ComboBox cbxUpdateType;
+        private Button btnConfigureAccelerate;
+        private Label label17;
     }
 }

@@ -150,7 +150,7 @@ namespace Kohya_lora_trainer
                 ps.Arguments = sb.ToString();
 
                 Process.Start(ps);
-                switch (cbxUpdateType.SelectedIndex) 
+                switch (cbxUpdateType.SelectedIndex)
                 {
                     default:
                         {
@@ -509,7 +509,7 @@ namespace Kohya_lora_trainer
                         {
                             string text = File.ReadAllText(fname);
                             string[] lines = text.Split("\r\n");
-                            for (int j = 0; j < lines.Length; j++) 
+                            for (int j = 0; j < lines.Length; j++)
                             {
                                 if (j > 0 && lines[j].Contains("Version"))
                                 {
@@ -527,6 +527,32 @@ namespace Kohya_lora_trainer
                 }
             }
             MessageBox.Show("PyTorchはインストールされていません。", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void btnConfigureAccelerate_Click(object sender, EventArgs e)
+        {
+            if (!Directory.Exists(Constants.CurrentSdScriptsPath))
+            {
+                MessageBox.Show("sd-scriptsがみつかりません。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!Directory.Exists(Constants.CurrentSdScriptsPath + "venv\\Lib\\site-packages"))
+            {
+                MessageBox.Show("venvがありません。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("/k cd ").Append(Constants.CurrentSdScriptsPath);
+
+            sb.Append(" && .\\venv\\Scripts\\activate && accelerate config");
+
+            ProcessStartInfo ps = new ProcessStartInfo();
+            ps.FileName = "cmd";
+            ps.Arguments = sb.ToString();
+
+            Process.Start(ps);
         }
     }
 }
