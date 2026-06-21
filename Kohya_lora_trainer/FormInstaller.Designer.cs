@@ -65,11 +65,11 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(32, 314);
+            label2.Location = new Point(32, 308);
             label2.Name = "label2";
-            label2.Size = new Size(394, 150);
+            label2.Size = new Size(394, 90);
             label2.TabIndex = 2;
-            label2.Text = resources.GetString("label2.Text");
+            label2.Text = "7回Enter押す、数字キーの1を押してからEnter押す\r\n注意:日本語環境では選択のためにカーソルキーを押すと落ちます。\r\n数字キーの0、1、2……で選択できますので、そちらを使ってください。\r\n\r\naccelerateの設定後(venv) 〇:\\〇〇\\sd-scripts>とでたらインストール完了です。\r\n完了後、GUIを再起動してください。";
             // 
             // cbxUsePy
             // 
@@ -117,17 +117,17 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(32, 488);
+            label4.Location = new Point(32, 426);
             label4.Name = "label4";
-            label4.Size = new Size(301, 30);
+            label4.Size = new Size(301, 60);
             label4.TabIndex = 7;
-            label4.Text = "インストール中のエラーや操作ミスなどで\r\n失敗したらsd-scriptsフォルダを消去してからやり直してください。";
+            label4.Text = "インストール中のエラーや操作ミスなどで\r\n失敗したらsd-scriptsフォルダを消去してからやり直してください。\r\naccelerateの操作ミスであればGUIを再起動してから、\r\nツール>ユーティリティからaccelerate configを実行してください。";
             // 
             // FormInstaller
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(485, 527);
+            ClientSize = new Size(485, 507);
             Controls.Add(label4);
             Controls.Add(cbxUseLatestTorch);
             Controls.Add(label3);

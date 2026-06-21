@@ -91,7 +91,7 @@
             // 
             // btnRunTensorboard
             // 
-            btnRunTensorboard.Location = new Point(183, 7);
+            btnRunTensorboard.Location = new Point(183, 21);
             btnRunTensorboard.Margin = new Padding(3, 4, 3, 4);
             btnRunTensorboard.Name = "btnRunTensorboard";
             btnRunTensorboard.Size = new Size(150, 35);
@@ -103,7 +103,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(183, 46);
+            label3.Location = new Point(183, 60);
             label3.Name = "label3";
             label3.Size = new Size(158, 15);
             label3.TabIndex = 1;
@@ -201,18 +201,14 @@
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(label17);
             tabPage1.Controls.Add(label16);
             tabPage1.Controls.Add(cbxClearNpzTargetSelection);
-            tabPage1.Controls.Add(cbxUseLatestTorch);
-            tabPage1.Controls.Add(cbxPythonVersion);
-            tabPage1.Controls.Add(label14);
-            tabPage1.Controls.Add(cbxUsePy);
+            tabPage1.Controls.Add(btnConfigureAccelerate);
             tabPage1.Controls.Add(lblProcessingNpz);
             tabPage1.Controls.Add(label12);
             tabPage1.Controls.Add(btnDeleteNpz);
-            tabPage1.Controls.Add(btnRegenVenv);
             tabPage1.Controls.Add(btnRunTensorboard);
-            tabPage1.Controls.Add(label8);
             tabPage1.Controls.Add(label3);
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
@@ -225,7 +221,7 @@
             // label16
             // 
             label16.AutoSize = true;
-            label16.Location = new Point(343, 277);
+            label16.Location = new Point(344, 101);
             label16.Name = "label16";
             label16.Size = new Size(31, 15);
             label16.TabIndex = 11;
@@ -236,7 +232,7 @@
             cbxClearNpzTargetSelection.DropDownStyle = ComboBoxStyle.DropDownList;
             cbxClearNpzTargetSelection.FormattingEnabled = true;
             cbxClearNpzTargetSelection.Items.AddRange(new object[] { "すべてのnpz", "Latent", "Text Encoder" });
-            cbxClearNpzTargetSelection.Location = new Point(380, 274);
+            cbxClearNpzTargetSelection.Location = new Point(381, 98);
             cbxClearNpzTargetSelection.Name = "cbxClearNpzTargetSelection";
             cbxClearNpzTargetSelection.Size = new Size(104, 23);
             cbxClearNpzTargetSelection.TabIndex = 10;
@@ -246,7 +242,7 @@
             cbxUseLatestTorch.AutoSize = true;
             cbxUseLatestTorch.Checked = true;
             cbxUseLatestTorch.CheckState = CheckState.Checked;
-            cbxUseLatestTorch.Location = new Point(161, 123);
+            cbxUseLatestTorch.Location = new Point(151, 208);
             cbxUseLatestTorch.Name = "cbxUseLatestTorch";
             cbxUseLatestTorch.Size = new Size(207, 19);
             cbxUseLatestTorch.TabIndex = 9;
@@ -259,7 +255,7 @@
             cbxPythonVersion.DropDownStyle = ComboBoxStyle.DropDownList;
             cbxPythonVersion.FormattingEnabled = true;
             cbxPythonVersion.Items.AddRange(new object[] { "3.10", "3.11", "3.12", "3.13" });
-            cbxPythonVersion.Location = new Point(260, 178);
+            cbxPythonVersion.Location = new Point(294, 263);
             cbxPythonVersion.Name = "cbxPythonVersion";
             cbxPythonVersion.Size = new Size(103, 23);
             cbxPythonVersion.TabIndex = 8;
@@ -267,7 +263,7 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(68, 181);
+            label14.Location = new Point(102, 266);
             label14.Name = "label14";
             label14.Size = new Size(186, 15);
             label14.TabIndex = 7;
@@ -276,7 +272,7 @@
             // cbxUsePy
             // 
             cbxUsePy.AutoSize = true;
-            cbxUsePy.Location = new Point(161, 148);
+            cbxUsePy.Location = new Point(151, 233);
             cbxUsePy.Name = "cbxUsePy";
             cbxUsePy.Size = new Size(202, 19);
             cbxUsePy.TabIndex = 6;
@@ -289,7 +285,7 @@
             // 
             lblProcessingNpz.AutoSize = true;
             lblProcessingNpz.Font = new Font("Yu Gothic UI", 10F);
-            lblProcessingNpz.Location = new Point(225, 335);
+            lblProcessingNpz.Location = new Point(229, 159);
             lblProcessingNpz.Name = "lblProcessingNpz";
             lblProcessingNpz.Size = new Size(61, 19);
             lblProcessingNpz.TabIndex = 5;
@@ -299,7 +295,7 @@
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(131, 305);
+            label12.Location = new Point(132, 129);
             label12.Name = "label12";
             label12.Size = new Size(253, 30);
             label12.TabIndex = 4;
@@ -307,7 +303,7 @@
             // 
             // btnDeleteNpz
             // 
-            btnDeleteNpz.Location = new Point(183, 267);
+            btnDeleteNpz.Location = new Point(184, 91);
             btnDeleteNpz.Name = "btnDeleteNpz";
             btnDeleteNpz.Size = new Size(150, 35);
             btnDeleteNpz.TabIndex = 3;
@@ -317,9 +313,9 @@
             // 
             // btnRegenVenv
             // 
-            btnRegenVenv.Location = new Point(183, 79);
+            btnRegenVenv.Location = new Point(196, 172);
             btnRegenVenv.Name = "btnRegenVenv";
-            btnRegenVenv.Size = new Size(150, 35);
+            btnRegenVenv.Size = new Size(117, 30);
             btnRegenVenv.TabIndex = 2;
             btnRegenVenv.Text = "venv再生成";
             btnRegenVenv.UseVisualStyleBackColor = true;
@@ -328,7 +324,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(68, 204);
+            label8.Location = new Point(66, 289);
             label8.Name = "label8";
             label8.Size = new Size(388, 45);
             label8.TabIndex = 1;
@@ -349,10 +345,10 @@
             tabPage2.Controls.Add(nudTargetDim);
             tabPage2.Controls.Add(lblLoraPath);
             tabPage2.Controls.Add(lblOutputPath);
-            tabPage2.Location = new Point(4, 26);
+            tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(525, 399);
+            tabPage2.Size = new Size(525, 401);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Dimリサイズ";
             tabPage2.UseVisualStyleBackColor = true;
@@ -395,8 +391,6 @@
             // 
             // tabPage3
             // 
-            tabPage3.Controls.Add(label17);
-            tabPage3.Controls.Add(btnConfigureAccelerate);
             tabPage3.Controls.Add(cbxUpdateType);
             tabPage3.Controls.Add(label4);
             tabPage3.Controls.Add(label1);
@@ -411,9 +405,9 @@
             // 
             // btnConfigureAccelerate
             // 
-            btnConfigureAccelerate.Location = new Point(182, 240);
+            btnConfigureAccelerate.Location = new Point(183, 197);
             btnConfigureAccelerate.Name = "btnConfigureAccelerate";
-            btnConfigureAccelerate.Size = new Size(169, 33);
+            btnConfigureAccelerate.Size = new Size(150, 33);
             btnConfigureAccelerate.TabIndex = 6;
             btnConfigureAccelerate.Text = "accelerate config実行";
             btnConfigureAccelerate.UseVisualStyleBackColor = true;
@@ -475,9 +469,9 @@
             tabPage4.Controls.Add(btnSwitchBranch);
             tabPage4.Controls.Add(label5);
             tabPage4.Controls.Add(tbxBranchName);
-            tabPage4.Location = new Point(4, 26);
+            tabPage4.Location = new Point(4, 24);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(525, 399);
+            tabPage4.Size = new Size(525, 401);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "ブランチ";
             tabPage4.UseVisualStyleBackColor = true;
@@ -539,13 +533,19 @@
             // tabPage5
             // 
             tabPage5.Controls.Add(label15);
+            tabPage5.Controls.Add(btnRegenVenv);
+            tabPage5.Controls.Add(cbxUseLatestTorch);
             tabPage5.Controls.Add(btnShowTorchVer);
+            tabPage5.Controls.Add(label8);
             tabPage5.Controls.Add(label9);
+            tabPage5.Controls.Add(cbxPythonVersion);
             tabPage5.Controls.Add(label11);
+            tabPage5.Controls.Add(cbxUsePy);
             tabPage5.Controls.Add(btnPurgePipCache);
-            tabPage5.Location = new Point(4, 26);
+            tabPage5.Controls.Add(label14);
+            tabPage5.Location = new Point(4, 24);
             tabPage5.Name = "tabPage5";
-            tabPage5.Size = new Size(525, 399);
+            tabPage5.Size = new Size(525, 401);
             tabPage5.TabIndex = 4;
             tabPage5.Text = "不具合修正";
             tabPage5.UseVisualStyleBackColor = true;
@@ -553,7 +553,7 @@
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(39, 129);
+            label15.Location = new Point(126, 139);
             label15.Name = "label15";
             label15.Size = new Size(256, 15);
             label15.TabIndex = 3;
@@ -561,7 +561,7 @@
             // 
             // btnShowTorchVer
             // 
-            btnShowTorchVer.Location = new Point(39, 94);
+            btnShowTorchVer.Location = new Point(196, 104);
             btnShowTorchVer.Name = "btnShowTorchVer";
             btnShowTorchVer.Size = new Size(117, 32);
             btnShowTorchVer.TabIndex = 2;
@@ -572,7 +572,7 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(39, 61);
+            label9.Location = new Point(126, 66);
             label9.Name = "label9";
             label9.Size = new Size(284, 15);
             label9.TabIndex = 1;
@@ -581,7 +581,7 @@
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(165, 35);
+            label11.Location = new Point(176, 51);
             label11.Name = "label11";
             label11.Size = new Size(158, 15);
             label11.TabIndex = 1;
@@ -589,7 +589,7 @@
             // 
             // btnPurgePipCache
             // 
-            btnPurgePipCache.Location = new Point(39, 27);
+            btnPurgePipCache.Location = new Point(196, 17);
             btnPurgePipCache.Name = "btnPurgePipCache";
             btnPurgePipCache.Size = new Size(117, 31);
             btnPurgePipCache.TabIndex = 0;
@@ -600,7 +600,7 @@
             // label17
             // 
             label17.AutoSize = true;
-            label17.Location = new Point(122, 276);
+            label17.Location = new Point(104, 233);
             label17.Name = "label17";
             label17.Size = new Size(306, 30);
             label17.TabIndex = 7;
@@ -611,7 +611,7 @@
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScroll = true;
-            ClientSize = new Size(562, 481);
+            ClientSize = new Size(562, 462);
             Controls.Add(tabControl1);
             Font = new Font("Yu Gothic UI", 9F);
             FormBorderStyle = FormBorderStyle.FixedSingle;
