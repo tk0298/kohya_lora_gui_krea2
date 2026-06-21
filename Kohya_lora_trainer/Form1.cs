@@ -1499,7 +1499,12 @@ namespace Kohya_lora_trainer
 
                 if (para.CpuOffloadAsync && para.BlocksToSwap > 0)
                 {
-                    return MessageBox.Show("Unsloth offload checkpointingとブロックスワップは併用できません。\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    return MessageBox.Show("Unsloth offload checkpointingとブロックスワップは併用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                }
+
+                if (para.HuberScheduleType == HuberSchedule.SNR && para.LossType != LossType.LTwo)
+                {
+                    return MessageBox.Show("AnimaはHuber ScheduleにSNRは使用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 }
             }
             else

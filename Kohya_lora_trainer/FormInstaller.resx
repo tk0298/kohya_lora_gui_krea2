@@ -129,18 +129,6 @@
 なお、過去にaccelerateの設定をしたことがあれば、
 質問を無視してターミナルを閉じてもかまいません。</value>
   </data>
-  <data name="label2.Text" xml:space="preserve">
-    <value>数字キーでThis machineを選択してEnter押す
-数字キーでNo distributed trainingを選択してEnter押す
-noと入力してEnter押す を4回やる
-数字キーでallを選択してEnter押す
-数字キーでfp16を選択してEnter押す
-注意:日本語環境では選択のためにカーソルキーを押すと落ちます。
-数字キーの0、1、2……で選択できますので、そちらを使ってください。
-
-accelerateの設定後(venv) 〇:\〇〇\sd-scripts&gt;とでたらインストール完了です。
-完了後、GUIを再起動してください。</value>
-  </data>
   <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>

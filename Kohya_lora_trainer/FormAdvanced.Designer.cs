@@ -510,7 +510,7 @@ namespace Kohya_lora_trainer
             cbxUseGradient.Size = new Size(150, 19);
             cbxUseGradient.TabIndex = 18;
             cbxUseGradient.Text = "Gradient checkpointing";
-            toolTip1.SetToolTip(cbxUseGradient, "VRAM消費削減および増加を強く抑制\r\n速度がやや低下する\r\nSDXLでは必須級オプション");
+            toolTip1.SetToolTip(cbxUseGradient, "VRAM消費削減および増加を強く抑制\r\n速度がやや低下する\r\nSDXLとAnimaでは必須級オプション");
             cbxUseGradient.UseVisualStyleBackColor = true;
             // 
             // nudNoiseOffset
@@ -650,7 +650,7 @@ namespace Kohya_lora_trainer
             cbxCacheLatentsToDisk.Size = new Size(151, 19);
             cbxCacheLatentsToDisk.TabIndex = 23;
             cbxCacheLatentsToDisk.Text = "latentをディスクにキャッシュ";
-            toolTip1.SetToolTip(cbxCacheLatentsToDisk, "latentのキャッシュもオンにする必要あり\r\n2回目以降の学習開始が高速化\r\nlatentの内容はVAEによって変わり、UnetやTEは関係ない\r\n例:Animagine-XLでキャッシュしたものはIllustrious-XLでもそのまま使える");
+            toolTip1.SetToolTip(cbxCacheLatentsToDisk, "latentのキャッシュもオンにする必要あり\r\n2回目以降の学習開始が高速化\r\nlatentの内容はVAEによって変わり、拡散モデルとTEは関係ない\r\n例:Animagine-XLでキャッシュしたものはIllustrious-XLでもそのまま使える");
             cbxCacheLatentsToDisk.UseVisualStyleBackColor = true;
             // 
             // cbxCropRandomly
@@ -691,9 +691,9 @@ namespace Kohya_lora_trainer
             cbxUseFP8.AutoSize = true;
             cbxUseFP8.Location = new Point(311, 124);
             cbxUseFP8.Name = "cbxUseFP8";
-            cbxUseFP8.Size = new Size(135, 19);
+            cbxUseFP8.Size = new Size(195, 19);
             cbxUseFP8.TabIndex = 42;
-            cbxUseFP8.Text = "モデルをfp8で読み込む";
+            cbxUseFP8.Text = "モデルをfp8で読み込む(SD1/SDXL)";
             toolTip1.SetToolTip(cbxUseFP8, "事前学習モデルをfp8_e4m3fnで読み込む\r\n若干の速度低下と引き換えにモデルによるVRAM消費が半減する\r\nただし品質が低下する可能性あり\r\nAnimaは非対応");
             cbxUseFP8.UseVisualStyleBackColor = true;
             // 
@@ -935,7 +935,7 @@ namespace Kohya_lora_trainer
             cbxDisableMmapLoadSafetensors.Size = new Size(234, 19);
             cbxDisableMmapLoadSafetensors.TabIndex = 44;
             cbxDisableMmapLoadSafetensors.Text = "safetensors読込のメモリマッピングの無効化";
-            toolTip1.SetToolTip(cbxDisableMmapLoadSafetensors, "safetensorsファイルの読込が少し早くなる\r\nSD1非対応");
+            toolTip1.SetToolTip(cbxDisableMmapLoadSafetensors, "safetensorsファイルの読込が少し早くなる\r\nVRAM割り当ての挙動も変化する\r\nSD1非対応");
             cbxDisableMmapLoadSafetensors.UseVisualStyleBackColor = true;
             // 
             // cbxVParameterization
@@ -1013,7 +1013,7 @@ namespace Kohya_lora_trainer
             cbxResizeInterpolation.Name = "cbxResizeInterpolation";
             cbxResizeInterpolation.Size = new Size(95, 23);
             cbxResizeInterpolation.TabIndex = 26;
-            toolTip1.SetToolTip(cbxResizeInterpolation, "画像を学習解像度にリサイズする方法");
+            toolTip1.SetToolTip(cbxResizeInterpolation, "画像を学習解像度にリサイズする方法\r\nnearestは汚いので非推奨");
             // 
             // nudScaleWeightNorms
             // 
@@ -1115,7 +1115,7 @@ namespace Kohya_lora_trainer
             nudDiscreteFlowShift.Name = "nudDiscreteFlowShift";
             nudDiscreteFlowShift.Size = new Size(73, 23);
             nudDiscreteFlowShift.TabIndex = 0;
-            toolTip1.SetToolTip(nudDiscreteFlowShift, "Anima Base 1.0は3が良いかも\r\n低い値では破綻が増加する可能性あり");
+            toolTip1.SetToolTip(nudDiscreteFlowShift, "Timestep Sampling=ShiftまたはSigmaで有効\r\nAnima Base 1.0は3が良いかも\r\n低い値では破綻が増加する可能性あり");
             nudDiscreteFlowShift.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // cbxHuberSchedule
@@ -1135,7 +1135,7 @@ namespace Kohya_lora_trainer
             tbxLLMAdapterLR.Name = "tbxLLMAdapterLR";
             tbxLLMAdapterLR.Size = new Size(80, 23);
             tbxLLMAdapterLR.TabIndex = 6;
-            toolTip1.SetToolTip(tbxLLMAdapterLR, "0を推奨\r\nLLM Adapterの学習は劣化の原因\r\n空欄で未指定(LRと同じ値を使用する)");
+            toolTip1.SetToolTip(tbxLLMAdapterLR, "通常は0か空欄にする\r\nLLM Adapterの学習は劣化の原因");
             // 
             // cbxTimestepSampling
             // 
@@ -1180,7 +1180,7 @@ namespace Kohya_lora_trainer
             cbxConvertVaeTwoD.Size = new Size(126, 19);
             cbxConvertVaeTwoD.TabIndex = 4;
             cbxConvertVaeTwoD.Text = "VAEを2D化(高速化)";
-            toolTip1.SetToolTip(cbxConvertVaeTwoD, "Qwen Image(Wan Video)のVAEから時間軸を取り除くことで\r\n計算を高速化する");
+            toolTip1.SetToolTip(cbxConvertVaeTwoD, "Qwen Image(Wan Video)のVAEから時間軸を取り除くことで\r\n計算を高速化する\r\nlatentキャッシュが速くなる");
             cbxConvertVaeTwoD.UseVisualStyleBackColor = true;
             // 
             // label6
@@ -1222,7 +1222,7 @@ namespace Kohya_lora_trainer
             nudMinBucketReso.Name = "nudMinBucketReso";
             nudMinBucketReso.Size = new Size(72, 23);
             nudMinBucketReso.TabIndex = 24;
-            nudMinBucketReso.Value = new decimal(new int[] { 320, 0, 0, 0 });
+            nudMinBucketReso.Value = new decimal(new int[] { 256, 0, 0, 0 });
             nudMinBucketReso.ValueChanged += nudMinBucketReso_ValueChanged;
             // 
             // nudMaxBucketReso
@@ -1234,7 +1234,7 @@ namespace Kohya_lora_trainer
             nudMaxBucketReso.Name = "nudMaxBucketReso";
             nudMaxBucketReso.Size = new Size(72, 23);
             nudMaxBucketReso.TabIndex = 25;
-            nudMaxBucketReso.Value = new decimal(new int[] { 960, 0, 0, 0 });
+            nudMaxBucketReso.Value = new decimal(new int[] { 1024, 0, 0, 0 });
             nudMaxBucketReso.ValueChanged += nudMaxBucketReso_ValueChanged;
             // 
             // label10
@@ -2063,9 +2063,9 @@ namespace Kohya_lora_trainer
             tabPage5.Controls.Add(label35);
             tabPage5.Controls.Add(tbxD0);
             tabPage5.Controls.Add(tbxGrowthRate);
-            tabPage5.Location = new Point(4, 26);
+            tabPage5.Location = new Point(4, 24);
             tabPage5.Name = "tabPage5";
-            tabPage5.Size = new Size(660, 347);
+            tabPage5.Size = new Size(660, 349);
             tabPage5.TabIndex = 5;
             tabPage5.Text = "オプティマイザ";
             tabPage5.UseVisualStyleBackColor = true;
