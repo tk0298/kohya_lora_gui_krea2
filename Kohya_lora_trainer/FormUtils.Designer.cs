@@ -58,7 +58,7 @@
             label13 = new Label();
             numericUpDown1 = new NumericUpDown();
             tabPage3 = new TabPage();
-            cbxUpdateOnlyPackage = new CheckBox();
+            cbxUpdateType = new ComboBox();
             label4 = new Label();
             label1 = new Label();
             btnInstallExtension = new Button();
@@ -393,32 +393,32 @@
             // 
             // tabPage3
             // 
-            tabPage3.Controls.Add(cbxUpdateOnlyPackage);
+            tabPage3.Controls.Add(cbxUpdateType);
             tabPage3.Controls.Add(label4);
             tabPage3.Controls.Add(label1);
             tabPage3.Controls.Add(btnInstallExtension);
             tabPage3.Controls.Add(btnUpdateRepo);
-            tabPage3.Location = new Point(4, 26);
+            tabPage3.Location = new Point(4, 24);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(525, 399);
+            tabPage3.Size = new Size(525, 401);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "更新";
             tabPage3.UseVisualStyleBackColor = true;
             // 
-            // cbxUpdateOnlyPackage
+            // cbxUpdateType
             // 
-            cbxUpdateOnlyPackage.AutoSize = true;
-            cbxUpdateOnlyPackage.Location = new Point(41, 81);
-            cbxUpdateOnlyPackage.Name = "cbxUpdateOnlyPackage";
-            cbxUpdateOnlyPackage.Size = new Size(154, 19);
-            cbxUpdateOnlyPackage.TabIndex = 4;
-            cbxUpdateOnlyPackage.Text = "Pythonパッケージのみ更新";
-            cbxUpdateOnlyPackage.UseVisualStyleBackColor = true;
+            cbxUpdateType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbxUpdateType.FormattingEnabled = true;
+            cbxUpdateType.Items.AddRange(new object[] { "通常の更新", "リポジトリのみ更新", "Pythonパッケージのみ更新" });
+            cbxUpdateType.Location = new Point(182, 99);
+            cbxUpdateType.Name = "cbxUpdateType";
+            cbxUpdateType.Size = new Size(169, 23);
+            cbxUpdateType.TabIndex = 5;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(41, 63);
+            label4.Location = new Point(140, 72);
             label4.Name = "label4";
             label4.Size = new Size(255, 15);
             label4.TabIndex = 3;
@@ -427,7 +427,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(41, 144);
+            label1.Location = new Point(182, 220);
             label1.Name = "label1";
             label1.Size = new Size(174, 30);
             label1.TabIndex = 2;
@@ -435,7 +435,7 @@
             // 
             // btnInstallExtension
             // 
-            btnInstallExtension.Location = new Point(41, 106);
+            btnInstallExtension.Location = new Point(182, 173);
             btnInstallExtension.Name = "btnInstallExtension";
             btnInstallExtension.Size = new Size(169, 35);
             btnInstallExtension.TabIndex = 1;
@@ -445,7 +445,7 @@
             // 
             // btnUpdateRepo
             // 
-            btnUpdateRepo.Location = new Point(41, 25);
+            btnUpdateRepo.Location = new Point(182, 25);
             btnUpdateRepo.Name = "btnUpdateRepo";
             btnUpdateRepo.Size = new Size(169, 35);
             btnUpdateRepo.TabIndex = 0;
@@ -461,9 +461,9 @@
             tabPage4.Controls.Add(btnSwitchBranch);
             tabPage4.Controls.Add(label5);
             tabPage4.Controls.Add(tbxBranchName);
-            tabPage4.Location = new Point(4, 24);
+            tabPage4.Location = new Point(4, 26);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(525, 401);
+            tabPage4.Size = new Size(525, 399);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "ブランチ";
             tabPage4.UseVisualStyleBackColor = true;
@@ -647,7 +647,6 @@
         private CheckBox cbxUsePy;
         private ComboBox cbxPythonVersion;
         private Label label14;
-        private CheckBox cbxUpdateOnlyPackage;
         private CheckBox cbxUseLatestTorch;
         private TabPage tabPage4;
         private Label label6;
@@ -664,5 +663,6 @@
         private Button btnShowTorchVer;
         private ComboBox cbxClearNpzTargetSelection;
         private Label label16;
+        private ComboBox cbxUpdateType;
     }
 }

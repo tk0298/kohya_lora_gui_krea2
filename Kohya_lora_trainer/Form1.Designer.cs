@@ -320,7 +320,7 @@ namespace Kohya_lora_trainer
             nudNetworkAlpha.Name = "nudNetworkAlpha";
             nudNetworkAlpha.Size = new Size(80, 23);
             nudNetworkAlpha.TabIndex = 51;
-            toolTip1.SetToolTip(nudNetworkAlpha, "dimの半分以下の値が望ましい\r\n高い値(dimに近い値)は品質低下or不安定化の原因となる");
+            toolTip1.SetToolTip(nudNetworkAlpha, "SDXL以前はdimの半分以下の値が望ましい\r\nAnimaではdim=alphaでも問題なし\r\nだが画風変化と過学習を抑制するためにdimの半分以下にしてもよい");
             nudNetworkAlpha.Value = new decimal(new int[] { 16, 0, 0, 0 });
             nudNetworkAlpha.ValueChanged += nudNetworkAlpha_ValueChanged;
             // 
@@ -345,7 +345,7 @@ namespace Kohya_lora_trainer
             nudResolution.Name = "nudResolution";
             nudResolution.Size = new Size(72, 23);
             nudResolution.TabIndex = 54;
-            toolTip1.SetToolTip(nudResolution, "SD1とAnima-previewが512、SDXLとAnima preview3以降が1024推奨\r\n上記の推奨未満の解像度にすると胴体分裂などの悪影響あり\r\n推奨超過にしても速度が低下するだけで大きなメリットなし");
+            toolTip1.SetToolTip(nudResolution, "SD1が512、SDXLとAnima Baseが1024推奨\r\n上記の推奨未満の解像度にすると胴体分裂などの悪影響あり(特にSD1とSDXL)\r\n推奨超過にしても速度が低下するだけで大きなメリットなし");
             nudResolution.Value = new decimal(new int[] { 512, 0, 0, 0 });
             nudResolution.ValueChanged += nudResolution_ValueChanged;
             // 
@@ -591,11 +591,11 @@ namespace Kohya_lora_trainer
             // label20
             // 
             label20.AutoSize = true;
-            label20.Location = new Point(325, 161);
+            label20.Location = new Point(295, 161);
             label20.Name = "label20";
-            label20.Size = new Size(77, 15);
+            label20.Size = new Size(103, 15);
             label20.TabIndex = 48;
-            label20.Text = "次元数(Rank)";
+            label20.Text = "次元数(Dim/Rank)";
             // 
             // label21
             // 

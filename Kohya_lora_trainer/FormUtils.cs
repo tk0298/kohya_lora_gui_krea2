@@ -118,6 +118,8 @@ namespace Kohya_lora_trainer
             cbxPythonVersion.Update();
             cbxClearNpzTargetSelection.SelectedIndex = 0;
             cbxClearNpzTargetSelection.Update();
+            cbxUpdateType.SelectedIndex = 0;
+            cbxUpdateType.Update();
         }
 
         private void btnUpdateRepo_Click(object sender, EventArgs e)
@@ -143,19 +145,31 @@ namespace Kohya_lora_trainer
                     sb.Append(Constants.CurrentSdScriptsPath);
                 }
 
-                if (!cbxUpdateOnlyPackage.Checked)
-                {
-                    sb.Append(" && git pull");
-                }
-
-
-                sb.Append(" && .\\venv\\Scripts\\activate && pip install --use-pep517 --upgrade -r requirements.txt");
-
                 ProcessStartInfo ps = new ProcessStartInfo();
                 ps.FileName = "cmd";
                 ps.Arguments = sb.ToString();
 
                 Process.Start(ps);
+                switch (cbxUpdateType.SelectedIndex) 
+                {
+                    default:
+                        {
+                            sb.Append(" && git pull && .\\venv\\Scripts\\activate && pip install --use-pep517 --upgrade -r requirements.txt");
+                        }
+                        break;
+                    case 1:
+                        {
+                            //sd-scriptsのみ
+                            sb.Append(" && git fetch && git pull");
+                        }
+                        break;
+                    case 2:
+                        {
+                            //pipのみ
+                            sb.Append(" && .\\venv\\Scripts\\activate && pip install --use-pep517 --upgrade -r requirements.txt");
+                        }
+                        break;
+                }
             }
         }
 
