@@ -734,11 +734,21 @@ namespace Kohya_lora_trainer
 
                 sb.Append(" --timestep_sampling \"").Append(para.TimestepSamplingEnum.ToString().ToLower()).Append('"');
 
-                sb.Append(" --discrete_flow_shift ").Append(para.DiscreteFlowShift.ToString("0.##"));
-
-                if (para.TimestepSamplingEnum == TimestepSampling.Sigmoid)
+                switch (para.TimestepSamplingEnum)
                 {
-                    sb.Append(" --sigmoid_scale ").Append(para.Sigmoidscale.ToString("0.##"));
+                    case TimestepSampling.Sigma:
+                    case TimestepSampling.Shift:
+                        {
+                            sb.Append(" --discrete_flow_shift ").Append(para.DiscreteFlowShift.ToString("0.####"));
+                        }
+                        break;
+                    case TimestepSampling.Sigmoid:
+                        {
+                            sb.Append(" --sigmoid_scale ").Append(para.Sigmoidscale.ToString("0.####"));
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
                 string exclude = GenerateExcludePatterns();
