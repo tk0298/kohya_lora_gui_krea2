@@ -17,7 +17,7 @@ namespace Kohya_lora_trainer
         public decimal NetworkAlpha = 4;
 
         //Optional
-        public string RegImagePath = string.Empty;
+        public string? RegImagePath = string.Empty;
         public bool ShuffleCaptions = true;
         public int KeepTokenCount = 1, SaveEveryNEpochs = 0;
         [XmlIgnore]
