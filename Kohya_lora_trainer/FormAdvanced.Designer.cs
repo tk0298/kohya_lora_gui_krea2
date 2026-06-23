@@ -614,7 +614,7 @@ namespace Kohya_lora_trainer
             // 
             nudMaxTokens.Increment = new decimal(new int[] { 75, 0, 0, 0 });
             nudMaxTokens.Location = new Point(138, 22);
-            nudMaxTokens.Maximum = new decimal(new int[] { 512, 0, 0, 0 });
+            nudMaxTokens.Maximum = new decimal(new int[] { 225, 0, 0, 0 });
             nudMaxTokens.Minimum = new decimal(new int[] { 75, 0, 0, 0 });
             nudMaxTokens.Name = "nudMaxTokens";
             nudMaxTokens.Size = new Size(92, 23);
@@ -1115,7 +1115,7 @@ namespace Kohya_lora_trainer
             nudDiscreteFlowShift.Name = "nudDiscreteFlowShift";
             nudDiscreteFlowShift.Size = new Size(73, 23);
             nudDiscreteFlowShift.TabIndex = 0;
-            toolTip1.SetToolTip(nudDiscreteFlowShift, "Discrete Flow Shiftのこと\r\nTimestep Sampling=ShiftまたはSigmaで有効\r\nAnima Base 1.0は2が良いかも\r\n値に比例して高周波成分の学習が弱くなる");
+            toolTip1.SetToolTip(nudDiscreteFlowShift, "Discrete Flow Shiftのこと\r\nTimestep Sampling=Shiftで有効\r\nAnima Base 1.0は1～2が良いかも\r\n値に比例して高周波成分の学習が弱くなる");
             nudDiscreteFlowShift.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // cbxHuberSchedule
@@ -1170,7 +1170,7 @@ namespace Kohya_lora_trainer
             tbxMlpLR.Name = "tbxMlpLR";
             tbxMlpLR.Size = new Size(80, 23);
             tbxMlpLR.TabIndex = 6;
-            toolTip1.SetToolTip(tbxMlpLR, "空欄で未指定(LRと同じ値を使用する)\r\nMLPは画風と特徴に影響が大きいとされる\r\n");
+            toolTip1.SetToolTip(tbxMlpLR, "空欄で未指定(LRと同じ値を使用する)\r\nMLPは画風と特徴に影響が大きいとされる");
             // 
             // cbxConvertVaeTwoD
             // 
@@ -2453,11 +2453,11 @@ namespace Kohya_lora_trainer
             // label26
             // 
             label26.AutoSize = true;
-            label26.Location = new Point(52, 24);
+            label26.Location = new Point(9, 24);
             label26.Name = "label26";
-            label26.Size = new Size(77, 15);
+            label26.Size = new Size(123, 15);
             label26.TabIndex = 19;
-            label26.Text = "最大トークン数";
+            label26.Text = "最大トークン数(SD1/XL)";
             // 
             // label41
             // 
