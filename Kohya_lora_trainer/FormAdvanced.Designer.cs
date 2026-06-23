@@ -2988,7 +2988,6 @@ namespace Kohya_lora_trainer
         private NumericUpDown nudLRDecaySteps;
         private Label label70;
         private NumericUpDown nudCaptionTagDropout;
-        private CheckBox cbxApplyAttnMaskToT5;
         private CheckBox cbxDisableMmapLoadSafetensors;
         private Label label76;
         private NumericUpDown nudClipGDropoutRate;

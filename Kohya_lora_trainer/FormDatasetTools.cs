@@ -816,7 +816,7 @@ namespace Kohya_lora_trainer
 
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         errorCount++;
                     }

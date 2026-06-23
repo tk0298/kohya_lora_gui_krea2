@@ -13,7 +13,7 @@ namespace Kohya_lora_trainer
 {
     public partial class FormBatchProcess : Form
     {
-        private static string PresetListText;
+        private static string? PresetListText;
 
         public FormBatchProcess()
         {

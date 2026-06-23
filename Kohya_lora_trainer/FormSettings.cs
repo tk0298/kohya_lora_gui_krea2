@@ -194,8 +194,11 @@ namespace Kohya_lora_trainer
             tbxTensorboard.Text = MyUtils.GetDefaultDir("TensorboardDir");
             tbxConfig.Text = MyUtils.GetDefaultDir("ConfigDir");
             tbxLoRA.Text = MyUtils.GetDefaultDir("LoRADir");
-            int checkInterval = (int)Registry.GetValue(@"HKEY_CURRENT_USER\Software\kohya_lora_gui", "UpdateCheckInterval", 7);
-            nudUpdateCheckInterval.Value = checkInterval;
+            int? checkInterval = (int?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\kohya_lora_gui", "UpdateCheckInterval", 7);
+            if (checkInterval.HasValue)
+            {
+                nudUpdateCheckInterval.Value = (int)checkInterval;
+            }
             lblCheckingUpdate.Visible = false;
         }
 
