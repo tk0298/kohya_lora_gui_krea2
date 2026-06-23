@@ -948,7 +948,7 @@ namespace Kohya_lora_trainer
                 return false;
             }
 
-            if (!File.Exists(para.ModelPath) && para.ModelArchitectureEnum != ModelArchitecture.Anima)
+            if (!File.Exists(para.ModelPath))
             {
                 if (showMsg)
                     MessageBox.Show("学習元モデルが見つかりません。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
