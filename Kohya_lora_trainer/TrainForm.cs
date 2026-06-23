@@ -80,7 +80,7 @@ namespace Kohya_lora_trainer
             }
         }
 
-        private void TrainExited(object sender, EventArgs e)
+        private void TrainExited(object? sender, EventArgs e)
         {
             if (process != null)
             {

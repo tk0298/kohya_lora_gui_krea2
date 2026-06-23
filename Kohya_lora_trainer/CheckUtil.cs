@@ -15,7 +15,7 @@ namespace Kohya_lora_trainer
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static bool HaveNonAsciiOrSpace(string text)
+        public static bool HaveNonAsciiOrSpace(string? text)
         {
             if (string.IsNullOrEmpty(text))
                 return false;
@@ -36,7 +36,7 @@ namespace Kohya_lora_trainer
         /// <param name="path"></param>
         /// <param name="ccnt">合計画像枚数</param>
         /// <returns></returns>
-        public static bool IsImageDirectoryValid(string path, out int ccnt)
+        public static bool IsImageDirectoryValid(string? path, out int ccnt)
         {
             ccnt = 0;
             

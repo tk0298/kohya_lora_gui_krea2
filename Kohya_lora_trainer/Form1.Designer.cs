@@ -284,11 +284,11 @@ namespace Kohya_lora_trainer
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(15, 39);
+            label7.Location = new Point(9, 30);
             label7.Name = "label7";
-            label7.Size = new Size(177, 15);
+            label7.Size = new Size(177, 30);
             label7.TabIndex = 29;
-            label7.Text = "#がつく項目は0を指定すると無効化";
+            label7.Text = "*がつく項目は必須\r\n#がつく項目は0を指定すると無効化";
             // 
             // cbxShuffle
             // 
@@ -564,11 +564,11 @@ namespace Kohya_lora_trainer
             // lblFileName
             // 
             lblFileName.AutoSize = true;
-            lblFileName.Location = new Point(24, 284);
+            lblFileName.Location = new Point(16, 284);
             lblFileName.Name = "lblFileName";
-            lblFileName.Size = new Size(77, 15);
+            lblFileName.Size = new Size(82, 15);
             lblFileName.TabIndex = 39;
-            lblFileName.Text = "出力ファイル名";
+            lblFileName.Text = "出力ファイル名*";
             // 
             // label16
             // 
@@ -678,9 +678,9 @@ namespace Kohya_lora_trainer
             label11.AutoSize = true;
             label11.Location = new Point(445, 279);
             label11.Name = "label11";
-            label11.Size = new Size(78, 15);
+            label11.Size = new Size(83, 15);
             label11.TabIndex = 3;
-            label11.Text = "出力先フォルダ";
+            label11.Text = "出力先フォルダ*";
             // 
             // btnOutputPath
             // 
@@ -992,9 +992,9 @@ namespace Kohya_lora_trainer
             tabPageAddArgs.Controls.Add(label19);
             tabPageAddArgs.Controls.Add(tbxAdditionalNetworkArgs);
             tabPageAddArgs.Controls.Add(tbxAdditionalArgs);
-            tabPageAddArgs.Location = new Point(4, 26);
+            tabPageAddArgs.Location = new Point(4, 24);
             tabPageAddArgs.Name = "tabPageAddArgs";
-            tabPageAddArgs.Size = new Size(759, 382);
+            tabPageAddArgs.Size = new Size(759, 384);
             tabPageAddArgs.TabIndex = 2;
             tabPageAddArgs.Text = "追加の引数";
             tabPageAddArgs.UseVisualStyleBackColor = true;
