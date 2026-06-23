@@ -795,11 +795,52 @@ namespace Kohya_lora_trainer
             {
                 return true;
             }
-            if (IsInvalidImageFolder || IsInvalidRegFolder || IsInvalidOutputName || IsInvalidLR || IsInvalidResolution)
+
+            if (IsInvalidImageFolder)
             {
                 if (showMsg)
                 {
-                    MessageBox.Show("設定が間違っています。設定を見直してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("教師画像フォルダが存在しないか不適切な文字があります。\r\n正しいパスを指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                return false;
+            }
+
+            if (IsInvalidRegFolder)
+            {
+                if (showMsg)
+                {
+                    MessageBox.Show("正則化画像フォルダが存在しないか不適切な文字があります。\r\n正しいパスを指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                return false;
+            }
+
+            if (IsInvalidOutputName)
+            {
+                if (showMsg)
+                {
+                    MessageBox.Show("出力ファイル名が未指定か不適切です。\r\n使用できない文字を含まない適切な名前を設定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                return false;
+            }
+
+            if (IsInvalidLR)
+            {
+                if (showMsg)
+                {
+                    MessageBox.Show("学習率(LR)が不適切です。\r\n正しい値を指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                return false;
+            }
+
+            if (IsInvalidResolution)
+            {
+                if (showMsg)
+                {
+                    MessageBox.Show("解像度が不適切です。\r\n64で割り切れる値を指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
 
                 return false;
