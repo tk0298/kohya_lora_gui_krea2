@@ -522,7 +522,7 @@ namespace Kohya_lora_trainer
             nudNoiseOffset.Name = "nudNoiseOffset";
             nudNoiseOffset.Size = new Size(80, 23);
             nudNoiseOffset.TabIndex = 44;
-            toolTip1.SetToolTip(nudNoiseOffset, "全体的に明るい/暗い環境でグレー寄りになるのを軽減する\r\n変色と明度の変化を減らすため学習元モデルで使用された値を設定すべき\r\nちなみにAnimagine XL系で使用された値は0.0357\r\nZero Terminal SNRを使うなら0にする\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(nudNoiseOffset, "全体的に明るい/暗い環境でグレー寄りになるのを軽減する\r\n変色と明度の変化を減らすため学習元モデルで使用された値を設定すべき\r\nちなみにAnimagine XL系で使用された値は0.0357\r\nZero Terminal SNRを使うなら0にする");
             // 
             // nudCaptionDropout
             // 
@@ -727,7 +727,7 @@ namespace Kohya_lora_trainer
             nudMinSNRGamma.Name = "nudMinSNRGamma";
             nudMinSNRGamma.Size = new Size(80, 23);
             nudMinSNRGamma.TabIndex = 51;
-            toolTip1.SetToolTip(nudMinSNRGamma, "安定性を改善する\r\nDebiased Estimationを使うなら0にする\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(nudMinSNRGamma, "安定性を改善する\r\nDebiased Estimationを使うなら0にする");
             // 
             // cbxWeightDecomposition
             // 
@@ -947,7 +947,7 @@ namespace Kohya_lora_trainer
             cbxVParameterization.Size = new Size(125, 19);
             cbxVParameterization.TabIndex = 58;
             cbxVParameterization.Text = "v-parameterization";
-            toolTip1.SetToolTip(cbxVParameterization, "ノイズ予測にv-prediction(デノイズ前後の差分の予測)を使う\r\n学習元モデルが使用を明記している場合のみチェックをつける\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(cbxVParameterization, "ノイズ予測にv-prediction(デノイズ前後の差分の予測)を使う\r\n事前学習モデルが使用を明記している場合のみチェックをつける");
             cbxVParameterization.UseVisualStyleBackColor = true;
             // 
             // cbxZeroTerminalSNR
@@ -959,7 +959,7 @@ namespace Kohya_lora_trainer
             cbxZeroTerminalSNR.Size = new Size(122, 19);
             cbxZeroTerminalSNR.TabIndex = 58;
             cbxZeroTerminalSNR.Text = "Zero Terminal SNR";
-            toolTip1.SetToolTip(cbxZeroTerminalSNR, "ノイズスケジューラーの問題を修正して\r\n全体が明るい/暗い状況でグレー寄りになるのを防ぐ\r\n完全なノイズを用いて生成/学習をするため出力が不安定になりやすい\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(cbxZeroTerminalSNR, "ノイズスケジューラーの問題を修正して\r\n全体が明るい/暗い状況でグレー寄りになるのを防ぐ\r\n完全なノイズを用いて生成/学習をするため出力が不安定になりやすい");
             cbxZeroTerminalSNR.UseVisualStyleBackColor = true;
             // 
             // cbxUseAdditionalOptArgs
@@ -980,7 +980,7 @@ namespace Kohya_lora_trainer
             nudMultiresNoiseIterations.Name = "nudMultiresNoiseIterations";
             nudMultiresNoiseIterations.Size = new Size(80, 23);
             nudMultiresNoiseIterations.TabIndex = 53;
-            toolTip1.SetToolTip(nudMultiresNoiseIterations, "Zero Terminal SNRを使うなら0にする\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(nudMultiresNoiseIterations, "Zero Terminal SNRを使うなら0にする");
             // 
             // nudMultiresNoiseDiscount
             // 
@@ -990,7 +990,7 @@ namespace Kohya_lora_trainer
             nudMultiresNoiseDiscount.Name = "nudMultiresNoiseDiscount";
             nudMultiresNoiseDiscount.Size = new Size(80, 23);
             nudMultiresNoiseDiscount.TabIndex = 55;
-            toolTip1.SetToolTip(nudMultiresNoiseDiscount, "Zero Terminal SNRを使うなら0にする\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(nudMultiresNoiseDiscount, "Zero Terminal SNRを使うなら0にする");
             // 
             // cbxDebiasedEstimation
             // 
@@ -1001,7 +1001,7 @@ namespace Kohya_lora_trainer
             cbxDebiasedEstimation.Size = new Size(132, 19);
             cbxDebiasedEstimation.TabIndex = 58;
             cbxDebiasedEstimation.Text = "Debiased Estimation";
-            toolTip1.SetToolTip(cbxDebiasedEstimation, "色ずれを軽減する\r\n安定性も改善する\r\nFlow MatchingのAnimaでは使用しない");
+            toolTip1.SetToolTip(cbxDebiasedEstimation, "色ずれを軽減する\r\n安定性も改善する");
             cbxDebiasedEstimation.UseVisualStyleBackColor = true;
             // 
             // cbxResizeInterpolation
@@ -1089,9 +1089,9 @@ namespace Kohya_lora_trainer
             cbxCpuOffloadAsync.AutoSize = true;
             cbxCpuOffloadAsync.Location = new Point(340, 87);
             cbxCpuOffloadAsync.Name = "cbxCpuOffloadAsync";
-            cbxCpuOffloadAsync.Size = new Size(231, 19);
+            cbxCpuOffloadAsync.Size = new Size(189, 19);
             cbxCpuOffloadAsync.TabIndex = 5;
-            cbxCpuOffloadAsync.Text = "unsloth_offload_checkpointing(Anima)";
+            cbxCpuOffloadAsync.Text = "unsloth_offload_checkpointing";
             toolTip1.SetToolTip(cbxCpuOffloadAsync, "Block Swapの方が速い\r\nblock swapと併用不可");
             cbxCpuOffloadAsync.UseVisualStyleBackColor = true;
             // 
@@ -1108,14 +1108,14 @@ namespace Kohya_lora_trainer
             // 
             // nudDiscreteFlowShift
             // 
-            nudDiscreteFlowShift.DecimalPlaces = 2;
+            nudDiscreteFlowShift.DecimalPlaces = 4;
             nudDiscreteFlowShift.Location = new Point(135, 217);
             nudDiscreteFlowShift.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
             nudDiscreteFlowShift.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             nudDiscreteFlowShift.Name = "nudDiscreteFlowShift";
             nudDiscreteFlowShift.Size = new Size(73, 23);
             nudDiscreteFlowShift.TabIndex = 0;
-            toolTip1.SetToolTip(nudDiscreteFlowShift, "Timestep Sampling=ShiftまたはSigmaで有効\r\nAnima Base 1.0は3が良いかも\r\n低い値では破綻が増加する可能性あり");
+            toolTip1.SetToolTip(nudDiscreteFlowShift, "Discrete Flow Shiftのこと\r\nTimestep Sampling=ShiftまたはSigmaで有効\r\nAnima Base 1.0は2が良いかも\r\n値に比例して高周波成分の学習が弱くなる");
             nudDiscreteFlowShift.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // cbxHuberSchedule
@@ -2655,11 +2655,11 @@ namespace Kohya_lora_trainer
             // label55
             // 
             label55.AutoSize = true;
-            label55.Location = new Point(332, 127);
+            label55.Location = new Point(325, 127);
             label55.Name = "label55";
-            label55.Size = new Size(108, 15);
+            label55.Size = new Size(115, 15);
             label55.TabIndex = 1;
-            label55.Text = "スワップするブロック数";
+            label55.Text = "スワップするブロック数#";
             // 
             // label59
             // 
@@ -2699,7 +2699,7 @@ namespace Kohya_lora_trainer
             // 
             // nudSigmoidScale
             // 
-            nudSigmoidScale.DecimalPlaces = 2;
+            nudSigmoidScale.DecimalPlaces = 4;
             nudSigmoidScale.Location = new Point(135, 188);
             nudSigmoidScale.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
             nudSigmoidScale.Minimum = new decimal(new int[] { 1, 0, 0, 65536 });
