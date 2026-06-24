@@ -266,13 +266,6 @@ namespace Kohya_lora_trainer
                 return;
             }
 
-            if (string.IsNullOrEmpty(CurrentPresetPath))
-            {
-                Debug.WriteLine("TrainForm started with empty preset path!");
-                Close();
-                return;
-            }
-
             string tboard = MyUtils.GetDefaultDir("TensorboardDir");
             if (Directory.Exists(tboard))
             {
