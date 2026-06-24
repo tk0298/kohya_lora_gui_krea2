@@ -31,6 +31,7 @@ namespace Kohya_lora_trainer
         {
             InitializeComponent();
             CurrentPresetPath = currentPresetPath;
+            ShutdownOnly = shutdownOnly;
         }
 
         private void TrainForm_Load(object sender, EventArgs e)
@@ -253,7 +254,6 @@ namespace Kohya_lora_trainer
                 return;
             }
             lblProcessingCaptions.Visible = false;
-
             if (ShutdownOnly && (Form1.CompleteAction == TrainCompleteAction.Shutdown || Form1.CompleteAction == TrainCompleteAction.Suspend))
             {
                 btnCopyCmd.Enabled = false;
@@ -263,6 +263,13 @@ namespace Kohya_lora_trainer
                 timer1.Interval = 1000;
                 timer1.Start();
                 UpdateCountdownText();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(CurrentPresetPath))
+            {
+                Debug.WriteLine("TrainForm started with empty preset path!");
+                Close();
                 return;
             }
 

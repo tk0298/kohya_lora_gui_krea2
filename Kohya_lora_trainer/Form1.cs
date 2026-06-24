@@ -693,7 +693,7 @@ namespace Kohya_lora_trainer
                 LogGenerated = true;
                 if ((CompleteAction == TrainCompleteAction.Shutdown || CompleteAction == TrainCompleteAction.Suspend) && !BatchProcess.IsCancel)
                 {
-                    Form train0 = new TrainForm(true, LastOpenPresetPath);
+                    Form train0 = new TrainForm(true);
                     train0.ShowDialog();
                     train0.Dispose();
                 }
