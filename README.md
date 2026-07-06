@@ -1,9 +1,12 @@
-# Kohya_LoRA_param_GUI
+# kohya_lora_gui_krea2
 
 ![GUI Image](./images/image0.jpg)
 
 
 https://github.com/kohya-ss/sd-scripts のLoRA学習用のパラメータをGUI上で設定してコマンドラインに渡すWindows専用のGUIです。
+sd-scriptsのkrea2対応forkを利用してください。
+https://github.com/tk0298/sd-scripts.git
+
 
 gradioを使用するものと比べ以下のメリットがあります。
 - python、gradioを使用しないためファイルサイズが小さく起動が早い
