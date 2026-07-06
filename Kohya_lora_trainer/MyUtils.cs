@@ -1,0 +1,1749 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
+using System.Data.Common;
+using Microsoft.Win32;
+using Windows.Storage;
+
+namespace Kohya_lora_trainer
+{
+    internal static class MyUtils
+    {
+        private static Dictionary<string, string>? DefaultDirs = new Dictionary<string, string>();
+        private static readonly List<string> NetworkArgs = new List<string>();
+        private static readonly Regex WeightExtensionRegex = new Regex(@"\.pt|\.pth|\.ckpt|\.safetensors|\.sft", RegexOptions.Compiled, TimeSpan.FromMilliseconds(50));
+        private static readonly Regex SystemDirRegex = new Regex("windows|appdata|program files|programdata", RegexOptions.Compiled);
+
+        internal static void SaveSettings()
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(DefaultDirs, GetOption());
+                if (!string.IsNullOrEmpty(json))
+                {
+                    string saveto = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\lora-gui\settings.json";
+                    File.WriteAllText(saveto, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+        internal static void SaveDefaultDirSettings()
+        {
+            try
+            {
+                CheckAndCreateWorkDir();
+                string json = JsonSerializer.Serialize(DefaultDirs, GetOption());
+                if (!string.IsNullOrEmpty(json))
+                {
+                    string saveto = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\lora-gui\lora-gui-default-dir.json";
+                    File.WriteAllText(saveto, json);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+        internal static void LoadDefaultDirSettings()
+        {
+            try
+            {
+                string document = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                //新しい場所に引っ越し
+                CheckAndCreateWorkDir();
+                string oldFile = document + @"\lora-gui-default-dir.json";
+                string newFile = document + @"\lora-gui\lora-gui-default-dir.json";
+                if (File.Exists(oldFile) && !File.Exists(newFile))
+                {
+                    File.Move(oldFile, newFile);
+                }
+
+                if (File.Exists(newFile))
+                {
+                    string json = File.ReadAllText(newFile);
+                    DefaultDirs = JsonSerializer.Deserialize<Dictionary<string, string>>(json, GetOption());
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// デフォルトディレクトリの設定を取得する。キーがない場合はstring.Emptyとなる。
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        internal static string GetDefaultDir(string key)
+        {
+            if(DefaultDirs == null)
+            {
+                return string.Empty;
+            }
+
+            if (DefaultDirs.ContainsKey(key))
+            {
+                return DefaultDirs[key];
+            }
+            else
+            {
+                Debug.WriteLine("Warning: Missing key " + key);
+
+                return string.Empty;
+            }
+        }
+
+        internal static void SetDefaultDir(string key, string value)
+        {
+            if (DefaultDirs == null)
+                return;
+
+            DefaultDirs[key] = value;
+        }
+
+        private static JsonSerializerOptions GetOption()
+        {
+            // ユニコードのレンジ指定で日本語も正しく表示、インデントされるように指定
+            var options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                WriteIndented = true,
+            };
+            return options;
+        }
+
+        /// <summary>
+        /// コマンド生成。
+        /// </summary>
+        /// <returns>コマンド</returns>
+        internal static string GenerateCommands()
+        {
+            if (TrainParams.Current == null)
+            {
+                Debug.WriteLine("TrainParams is NULL");
+
+                return string.Empty;
+            }
+
+            var para = TrainParams.Current;
+
+            string command = para.CustomCommands.Trim();
+            command = command.Replace("\r\n", string.Empty);
+            command = command.Trim();
+            if (!string.IsNullOrWhiteSpace(command))
+            {
+                return command;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            NetworkArgs.Clear();
+
+            sb.Append("accelerate launch --num_cpu_threads_per_process ").Append(para.CpuThreads);
+            switch (para.ModelArchitectureEnum)
+            {
+                case ModelArchitecture.Legacy:
+                    sb.Append(" train_network.py");
+                    break;
+                case ModelArchitecture.XL:
+                    sb.Append(" sdxl_train_network.py");
+                    break;
+                case ModelArchitecture.Anima:
+                    sb.Append(" anima_train_network.py");
+                    break;
+                case ModelArchitecture.Krea2:
+                    sb.Append(" krea2_train_network.py");
+                    break;
+                default:
+                    sb.Append(" train_network.py");
+                    break;
+            }
+            //AnimaではここにDiTウェイトを指定する
+            sb.Append(" --pretrained_model_name_or_path \"").Append(para.ModelPath).Append('"');
+
+
+            sb.Append(" --train_data_dir \"").Append(para.TrainImagePath).Append("\" --output_dir \"").Append(para.OutputPath).Append('"');
+            //Optional(RegImage)
+            if (!string.IsNullOrEmpty(para.RegImagePath))
+            {
+                sb.Append(" --reg_data_dir \"").Append(para.RegImagePath).Append('"');
+            }
+
+            switch (para.ModuleType)
+            {
+                case NetworkModule.LoRA:
+                case NetworkModule.LoRAFA:
+                    {
+                        switch (para.ModelArchitectureEnum)
+                        {
+                            case ModelArchitecture.Legacy:
+                            case ModelArchitecture.XL:
+                                sb.Append(" --network_module \"").Append(para.ModuleType == NetworkModule.LoRA ? "networks.lora" : "networks.lora_fa").Append('"');
+                                if (para.UseConv2dExtend)
+                                {
+                                    bool di = para.ConvDim > 0;
+                                    bool al = para.ConvAlpha > 0;
+                                    if (di || al)
+                                    {
+                                        if (di)
+                                            NetworkArgs.Add("conv_dim=" + para.ConvDim.ToString());
+                                        if (al)
+                                            NetworkArgs.Add("conv_alpha=" + para.ConvAlpha.ToString());
+                                    }
+                                }
+                                break;
+                            case ModelArchitecture.Anima:
+                                sb.Append(" --network_module \"networks.lora_anima\"");
+                                break;
+                            case ModelArchitecture.Krea2:
+                                sb.Append(" --network_module \"networks.lora_krea2\"");
+                                break;
+                        }
+                    }
+                    break;
+                case NetworkModule.LyCORIS:
+                    {
+                        string algo = para.AlgoType == LycoAlgo.diag_oft ? "diag-oft" : para.AlgoType.ToString();
+
+                        sb.Append(" --network_module \"").Append("lycoris.kohya\"");
+                        NetworkArgs.Add("algo=" + algo);
+
+                        if (para.WeightDocomposition)
+                            NetworkArgs.Add("dora_wd=True");
+
+                        if (para.TrainNorm)
+                            NetworkArgs.Add("train_norm=True");
+
+                        if (para.RescaledOFT)
+                            NetworkArgs.Add("rescaled=True");
+
+                        if (para.ConstrainedOFT)
+                            NetworkArgs.Add("constrain=FLOAT");
+
+                        if (para.UseTucker)
+                            NetworkArgs.Add("use_tucker=True");
+
+                        if (para.UseScalar)
+                            NetworkArgs.Add("use_scalar=True");
+
+                        if (para.UseConv2dExtend)
+                        {
+                            bool di = para.ConvDim > 0;
+                            bool al = para.ConvAlpha > 0;
+                            if (di || al)
+                            {
+                                if (di)
+                                    NetworkArgs.Add("conv_dim=" + para.ConvDim.ToString());
+                                if (al)
+                                    NetworkArgs.Add("conv_alpha=" + para.ConvAlpha.ToString());
+                            }
+                        }
+                        else
+                        {
+                            NetworkArgs.Add("conv_dim=0");
+                            NetworkArgs.Add("conv_alpha=0");
+                        }
+                    }
+                    break;
+                case NetworkModule.DyLoRA:
+                    {
+                        sb.Append(" --network_module \"").Append("networks.dylora").Append('"');
+                        NetworkArgs.Add("unit=" + para.DyLoRAUnit.ToString());
+                        if (para.UseConv2dExtend)
+                        {
+                            bool di = para.ConvDim > 0;
+                            bool al = para.ConvAlpha > 0;
+                            if (di || al)
+                            {
+                                if (di)
+                                    NetworkArgs.Add("conv_dim=" + para.ConvDim.ToString());
+                                if (al)
+                                    NetworkArgs.Add("conv_alpha=" + para.ConvAlpha.ToString());
+                            }
+                        }
+                    }
+                    break;
+                case NetworkModule.LoHA:
+                    {
+                        sb.Append(" --network_module \"networks.loha\"");
+                        switch (para.ModelArchitectureEnum)
+                        {
+                            case ModelArchitecture.Legacy:
+                            case ModelArchitecture.XL:
+                                if (para.UseConv2dExtend)
+                                {
+                                    bool di = para.ConvDim > 0;
+                                    bool al = para.ConvAlpha > 0;
+                                    if (di || al)
+                                    {
+                                        if (di)
+                                            NetworkArgs.Add("conv_dim=" + para.ConvDim.ToString());
+                                        if (al)
+                                            NetworkArgs.Add("conv_alpha=" + para.ConvAlpha.ToString());
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case NetworkModule.LoKr:
+                    {
+                        sb.Append(" --network_module \"networks.lokr\"");
+                        switch (para.ModelArchitectureEnum)
+                        {
+                            case ModelArchitecture.Legacy:
+                            case ModelArchitecture.XL:
+                                if (para.UseConv2dExtend)
+                                {
+                                    bool di = para.ConvDim > 0;
+                                    bool al = para.ConvAlpha > 0;
+                                    if (di || al)
+                                    {
+                                        if (di)
+                                            NetworkArgs.Add("conv_dim=" + para.ConvDim.ToString());
+                                        if (al)
+                                            NetworkArgs.Add("conv_alpha=" + para.ConvAlpha.ToString());
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    break;
+            }
+
+            GenerateBlockWeightCmmands();
+
+            if (para.RankDropout > 0)
+                NetworkArgs.Add("rank_dropout=" + para.RankDropout.ToString());
+            if (para.ModuleDropout > 0)
+                NetworkArgs.Add("module_dropout=" + para.ModuleDropout.ToString());
+
+            if (para.LoRAPlusLRRatio > 0)
+            {
+                NetworkArgs.Add("loraplus_lr_ratio=" + para.LoRAPlusLRRatio.ToString());
+            }
+
+            if (para.LoRAPlusUnetLRRatio > 0)
+            {
+                NetworkArgs.Add("loraplus_unet_lr_ratio=" + para.LoRAPlusUnetLRRatio.ToString());
+            }
+
+            if (para.LoRAPlusTELRRatio > 0)
+            {
+                NetworkArgs.Add("loraplus_text_encoder_lr_ratio=" + para.LoRAPlusTELRRatio.ToString());
+            }
+
+
+
+            switch (para.CrossAttenType)
+            {
+                case CrossAtten.xformers:
+                    sb.Append(" --xformers");
+                    break;
+                case CrossAtten.mem_eff_attn:
+                    sb.Append(" --mem_eff_attn");
+                    break;
+                case CrossAtten.sdpa:
+                    sb.Append(" --sdpa");
+                    break;
+                default:
+                    break;
+            }
+
+            if (para.UseGradient)
+            {
+                sb.Append(" --gradient_checkpointing");
+            }
+
+            if (para.UseColorAug)
+            {
+                sb.Append(" --color_aug");
+            }
+
+            if (para.UseFlipAug)
+            {
+                sb.Append(" --flip_aug");
+            }
+
+            if (para.CropRandomly)
+            {
+                sb.Append(" --random_crop");
+            }
+
+            if (para.UseFastLoading)
+            {
+                sb.Append(" --persistent_data_loader_workers");
+            }
+
+            if (para.DontSaveMetadata)
+            {
+                sb.Append(" --no_metadata");
+            }
+
+            if (para.UseFullBf16)
+            {
+                sb.Append(" --full_bf16");
+            }
+
+            if (para.CacheLatents)
+            {
+                sb.Append(" --cache_latents");
+
+                if (para.CacheLatentsToDisk)
+                {
+                    sb.Append(" --cache_latents_to_disk");
+                }
+
+            }
+
+            if (para.AdaptiveNoiseScale != 0)
+            {
+                sb.Append(" --adaptive_noise_scale ").Append(para.AdaptiveNoiseScale.ToString());
+            }
+
+            sb.Append(" --max_data_loader_n_workers ").Append(para.DataLoaderThreads);
+
+            //Automatic
+            sb.Append(" --enable_bucket --save_model_as \"safetensors\"");
+
+
+            if (para.SchedulerType != Scheduler.None)
+            {
+                sb.Append(" --lr_scheduler \"").Append(para.SchedulerType.ToString()).Append('"');
+                switch (para.SchedulerType)
+                {
+                    case Scheduler.polynomial:
+                        sb.Append(" --lr_scheduler_power ").Append(para.LRSchedulerCycle.ToString("0.###"));
+                        break;
+                    case Scheduler.cosine_with_restarts:
+                        sb.Append(" --lr_scheduler_num_cycles ").Append(para.LRSchedulerCycle.ToString("0.###"));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            if (para.mixedPrecisionType != MixedPrecision.None)
+                sb.Append(" --mixed_precision \"").Append(para.mixedPrecisionType.ToString()).Append('"');
+
+            //Main
+            sb.Append(" --learning_rate ").Append(para.LearningRate.ToString("g"))
+                .Append(" --resolution ").Append(para.Resolution)
+                .Append(" --train_batch_size ").Append(para.BatchSize);
+
+            if (para.IsEpoch)
+            {
+                sb.Append(" --max_train_epochs ").Append(para.Epochs);
+            }
+            else
+            {
+                sb.Append(" --max_train_steps ").Append(para.Epochs);
+            }
+
+
+            sb.Append(" --network_dim ").Append(para.NetworkDim)
+            .Append(" --network_alpha ").Append(para.NetworkAlpha);
+
+            //Optional Main
+            if (para.ShuffleCaptions)
+            {
+                sb.Append(" --shuffle_caption");
+                if (para.KeepTokenCount > 0)
+                {
+                    sb.Append(" --keep_tokens ").Append(para.KeepTokenCount);
+                }
+            }
+
+            if (para.SaveEveryNEpochs > 0)
+            {
+                sb.Append(para.SaveWeightEveryEpoch ? " --save_every_n_epochs " : " --save_every_n_steps ").Append(para.SaveEveryNEpochs);
+            }
+
+            string opt = string.Empty;
+            switch (para.OptimizerTypeEnum)
+            {
+                case Optimizer.AdEMAMix8bit:
+                    opt = "bitsandbytes.optim.AdEMAMix8bit";
+                    break;
+                case Optimizer.PagedAdEMAMix8bit:
+                    opt = "bitsandbytes.optim.PagedAdEMAMix8bit";
+                    break;
+                case Optimizer.Came:
+                    opt = "pytorch_optimizer.CAME";
+                    break;
+                default:
+                    opt = para.OptimizerTypeEnum.ToString();
+                    break;
+            }
+
+
+
+            //Optimizerの引数
+            if (para.OptimizerTypeEnum == Optimizer.Custom)
+            {
+                sb.Append(" --optimizer_type \"").Append(para.CustomOptName.Trim()).Append('"');
+                string str1 = para.CustomOptArgs.Trim();
+                str1 = str1.Replace("\r\n", string.Empty);
+                if (!string.IsNullOrEmpty(str1))
+                {
+                    sb.Append(" --optimizer_args ").Append(str1);
+                }
+            }
+            else
+            {
+                sb.Append(" --optimizer_type \"").Append(opt).Append('"');
+                switch (para.OptimizerTypeEnum)
+                {
+                    case Optimizer.DAdaptLion:
+                        {
+                            sb.Append(" --optimizer_args \"betas=").Append(para.Betas0.ToString("g")).Append(',').Append(para.Betas1.ToString("g"))
+                                .Append("\" \"weight_decay=").Append(para.WeightDecay.ToString("g")).Append("\" \"d0=")
+                                .Append(para.D0.ToString("g")).Append('"');
+                        }
+                        break;
+                    case Optimizer.prodigy:
+                        {
+                            sb.Append(" --optimizer_args \"betas=").Append(para.Betas0.ToString("g")).Append(',').Append(para.Betas1.ToString("g")).Append("\" \"eps=")
+        .Append(para.Eps.ToString("g")).Append("\" \"weight_decay=").Append(para.WeightDecay.ToString("g")).Append("\" \"d0=")
+        .Append(para.D0.ToString("g")).Append("\" \"decouple=").Append(para.Decouple.ToString()).Append("\" \"d_coef=").Append(para.DCoef.ToString("g"))
+        .Append("\" \"use_bias_correction=").Append(para.UseBiasCorrection.ToString()).Append("\" \"safeguard_warmup=").Append(para.SafeguardWarmup.ToString()).Append('"');
+
+                            if (para.GrowthRate > 0f)
+                            {
+                                sb.Append(" \"growth_rate=").Append(para.GrowthRate.ToString("g")).Append('"');
+                            }
+
+                            if (para.ProdigyBeta3 > 0f)
+                            {
+                                sb.Append(" \"beta3=").Append(para.ProdigyBeta3.ToString("g")).Append('"');
+                            }
+                        }
+                        break;
+                    case Optimizer.AdamW:
+                    case Optimizer.AdamW8bit:
+                    case Optimizer.AdamWScheduleFree:
+                    case Optimizer.RAdamScheduleFree:
+                        {
+                            if (para.UseAdditionalOptArgs)
+                            {
+                                sb.Append(" --optimizer_args \"betas=").Append(para.Betas0.ToString("g")).Append(',').Append(para.Betas1.ToString("g")).Append("\" \"eps=")
+        .Append(para.Eps.ToString("g")).Append("\" \"weight_decay=").Append(para.WeightDecay.ToString("g")).Append('"');
+                            }
+                        }
+                        break;
+                    case Optimizer.Lion:
+                    case Optimizer.Lion8bit:
+                        {
+                            if (para.UseAdditionalOptArgs)
+                            {
+                                sb.Append(" --optimizer_args \"betas=").Append(para.Betas0.ToString("g")).Append(',').Append(para.Betas1.ToString("g")).
+                                    Append("\" \"weight_decay=").Append(para.WeightDecay.ToString("g")).Append('"');
+                            }
+                        }
+                        break;
+                    case Optimizer.Came:
+                        {
+                            if (para.UseAdditionalOptArgs)
+                            {
+                                sb.Append(" --optimizer_args \"betas=").Append(para.Betas0.ToString("g")).Append(',').Append(para.Betas1.ToString("g")).Append(',').Append(para.Betas2.ToString("g")).Append("\" \"eps1=")
+        .Append(para.Eps.ToString("g")).Append("\" \"eps2=").Append(para.Eps1.ToString("g")).Append("\" \"weight_decay=").Append(para.WeightDecay.ToString("g")).Append('"');
+                            }
+                        }
+                        break;
+                }
+            }
+
+            if (para.WarmupSteps > 0m)
+            {
+                sb.Append(" --lr_warmup_steps ").Append(para.WarmupSteps.ToString("0.##"));
+            }
+
+            if (para.LRDecaySteps > 0m && para.SchedulerType == Scheduler.warmup_stable_decay)
+            {
+                sb.Append(" --lr_decay_steps ").Append(para.LRDecaySteps.ToString("0.##"));
+            }
+
+            if (para.MinLRRatio > 0m && (para.SchedulerType == Scheduler.warmup_stable_decay || para.SchedulerType == Scheduler.cosine_with_min_lr))
+            {
+                sb.Append(" --lr_scheduler_min_lr_ratio ").Append(para.MinLRRatio);
+            }
+
+            if (para.SchedulerTimescale > 0m && para.SchedulerType == Scheduler.inverse_sqrt)
+            {
+                sb.Append(" --lr_scheduler_timescale ").Append(para.SchedulerTimescale);
+            }
+
+            if (!string.IsNullOrEmpty(para.OutputName))
+            {
+                sb.Append(" --output_name \"").Append(para.OutputName.Replace("\r\n", string.Empty)).Append('"');
+            }
+
+            if (!string.IsNullOrEmpty(para.VAEPath))
+            {
+                sb.Append(" --vae \"").Append(para.VAEPath).Append('"');
+            }
+
+            //Advanced
+            if (!string.IsNullOrEmpty(para.LoraModelPath))
+            {
+                sb.Append(" --network_weights ").Append('"').Append(para.LoraModelPath).Append('"');
+            }
+
+
+            if (para.NoBucketUpscaling)
+            {
+                sb.Append(" --bucket_no_upscale");
+            }
+
+
+            if (para.ModelArchitectureEnum == ModelArchitecture.Legacy)
+            {
+                sb.Append(" --clip_skip ").Append(para.ClipSkip);
+            }
+
+            if (para.SavePrecision != SavePrecision.none)
+            {
+                string preci = string.Empty;
+                switch (para.SavePrecision)
+                {
+                    case SavePrecision.fp16:
+                        preci = "fp16";
+                        break;
+                    case SavePrecision.bf16:
+                        preci = "bf16";
+                        break;
+                    case SavePrecision.fp32:
+                        preci = "float";
+                        break;
+                }
+
+                sb.Append(" --save_precision \"").Append(preci).Append('"');
+            }
+
+
+            sb.Append(" --min_bucket_reso ").Append(para.MinBucketResolution)
+            .Append(" --max_bucket_reso ").Append(para.MaxBucketResolution)
+            .Append(" --caption_extension \"").Append(para.CaptionFileExtension).Append('"');
+
+            if (para.Seed >= 0)
+            {
+                sb.Append(" --seed ").Append(para.Seed);
+            }
+
+            switch (para.advancedTrainType)
+            {
+                case AdvancedTrain.TextEncoderOnly:
+                    sb.Append(" --network_train_text_encoder_only");
+                    break;
+                case AdvancedTrain.UNetOnly:
+                    sb.Append(" --network_train_unet_only");
+                    break;
+                default:
+                    break;
+            }
+
+            //U-netのStable Diffusion専用オプション
+            if (para.ModelArchitectureEnum == ModelArchitecture.Legacy || para.ModelArchitectureEnum == ModelArchitecture.XL)
+            {
+                if (para.MaxTokens > 75)
+                    sb.Append(" --max_token_length ").Append(para.MaxTokens);
+
+                if (para.NoiseOffset > 0f)
+                {
+                    sb.Append(" --noise_offset ").Append(para.NoiseOffset.ToString());
+                    if (para.RandomNoiseOffset)
+                    {
+                        sb.Append(" --noise_offset_random_strength");
+                    }
+                }
+
+                if (para.IpNoiseGamma > 0)
+                {
+                    sb.Append(" --ip_noise_gamma ").Append(para.IpNoiseGamma.ToString());
+                    if (para.RandomIpNoiseGamma)
+                    {
+                        sb.Append(" --ip_noise_gamma_random_strength");
+                    }
+                }
+
+                if (para.MultiresNoiseIterations > 0)
+                {
+                    sb.Append(" --multires_noise_iterations ").Append(para.MultiresNoiseIterations.ToString());
+                }
+
+                if (para.MultiresNoiseDiscount > 0)
+                {
+                    sb.Append(" --multires_noise_discount ").Append(para.MultiresNoiseDiscount.ToString());
+                }
+
+                if (para.MinSNRGamma > 0)
+                {
+                    sb.Append(" --min_snr_gamma ").Append(para.MinSNRGamma.ToString());
+                }
+                if (para.VParameterization)
+                {
+                    sb.Append(" --v_parameterization");
+                }
+
+                if (para.ZeroTerminalSNR)
+                {
+                    sb.Append(" --zero_terminal_snr");
+                }
+
+                if (para.UseFP8Base)
+                {
+                    sb.Append(" --fp8_base");
+                }
+            }
+            else if (para.ModelArchitectureEnum == ModelArchitecture.Anima) //Diffusion Transformer+Flow matchingのAnima専用
+            {
+
+                if (!string.IsNullOrEmpty(para.Qwen3Path))
+                {
+                    sb.Append(" --qwen3 \"").Append(para.Qwen3Path).Append('"');
+                }
+
+                if (para.BlocksToSwap > 0)
+                {
+                    sb.Append(" --blocks_to_swap ").Append(para.BlocksToSwap.ToString());
+                }
+
+                if (para.DisableVAECache)
+                {
+                    sb.Append(" --vae_disable_cache");
+                }
+
+                if (para.CpuOffloadAsync)
+                {
+                    sb.Append(" --unsloth_offload_checkpointing");
+                }
+
+                if (para.ConvertVaeTwoD)
+                {
+                    sb.Append(" --qwen_image_vae_2d");
+                }
+
+
+                sb.Append(" --timestep_sampling \"").Append(para.TimestepSamplingEnum.ToString().ToLower()).Append('"');
+
+                switch (para.TimestepSamplingEnum)
+                {
+                    case TimestepSampling.Sigma:
+                    case TimestepSampling.Shift:
+                        {
+                            sb.Append(" --discrete_flow_shift ").Append(para.DiscreteFlowShift.ToString("0.####"));
+                        }
+                        break;
+                    case TimestepSampling.Sigmoid:
+                        {
+                            sb.Append(" --sigmoid_scale ").Append(para.Sigmoidscale.ToString("0.####"));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                string exclude = GenerateExcludePatterns();
+                if (!string.IsNullOrEmpty(exclude))
+                {
+                    NetworkArgs.Add(exclude);
+                }
+
+                string reglr = GenerateLrPatterns();
+                if (!string.IsNullOrEmpty(reglr))
+                {
+                    if (para.LLMAdapterLR > 0f)
+                    {
+                        NetworkArgs.Add("train_llm_adapter=True");
+                    }
+                    NetworkArgs.Add(reglr);
+                }
+
+            }
+            else if (para.ModelArchitectureEnum == ModelArchitecture.Krea2) //Diffusion Transformer+Flow matchingのKrea2専用
+            {
+                // Qwen3Pathの欄はKrea2ではQwen3-VL-4B Text Encoderのパスとして流用する
+                if (!string.IsNullOrEmpty(para.Qwen3Path))
+                {
+                    sb.Append(" --text_encoder \"").Append(para.Qwen3Path).Append('"');
+                }
+
+                if (para.BlocksToSwap > 0)
+                {
+                    sb.Append(" --blocks_to_swap ").Append(para.BlocksToSwap.ToString());
+                }
+
+                if (para.UseFP8Scaled)
+                {
+                    // Krea2はscaled fp8のみ対応。--fp8_baseは不要(--fp8_scaled単体で動的量子化が有効になる)。
+                    sb.Append(" --fp8_scaled");
+                }
+
+                sb.Append(" --timestep_sampling \"").Append(para.TimestepSamplingEnum.ToString().ToLower()).Append('"');
+
+                switch (para.TimestepSamplingEnum)
+                {
+                    case TimestepSampling.Sigma:
+                    case TimestepSampling.Shift:
+                        {
+                            sb.Append(" --discrete_flow_shift ").Append(para.DiscreteFlowShift.ToString("0.####"));
+                        }
+                        break;
+                    case TimestepSampling.Sigmoid:
+                        {
+                            sb.Append(" --sigmoid_scale ").Append(para.Sigmoidscale.ToString("0.####"));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (para.TextEncoderLR > 0)
+            {
+                sb.Append(" --text_encoder_lr ").Append(para.TextEncoderLR.ToString("g"));
+            }
+
+            if (para.UnetLR > 0)
+            {
+                sb.Append(" --unet_lr ").Append(para.UnetLR.ToString("g"));
+            }
+
+
+
+            if (para.UseWeightedCaptions)
+            {
+                sb.Append(" --weighted_captions");
+            }
+
+            if (!string.IsNullOrEmpty(para.TensorBoardLogPath))
+            {
+                sb.Append(" --logging_dir \"").Append(para.TensorBoardLogPath).Append('"');
+                sb.Append(" --log_tracker_name \"").Append(para.OutputName).Append('"');
+            }
+
+            if (!string.IsNullOrEmpty(para.DatasetConfigPath))
+            {
+                sb.Append(" --dataset_config \"").Append(para.DatasetConfigPath).Append('"');
+            }
+
+            if (para.NetworkDropout > 0)
+            {
+                sb.Append(" --network_dropout ").Append(para.NetworkDropout.ToString());
+            }
+
+            if (para.CaptionDropout > 0)
+            {
+                sb.Append(" --caption_dropout_rate ").Append(para.CaptionDropout.ToString());
+            }
+
+            if (para.CaptionTagDropout > 0)
+            {
+                sb.Append(" --caption_tag_dropout_rate ").Append(para.CaptionTagDropout.ToString());
+            }
+
+            if (para.NoHalfVAE)
+            {
+                sb.Append(" --no_half_vae");
+            }
+
+            if (para.CacheTextencoder)
+            {
+                sb.Append(" --cache_text_encoder_outputs");
+                if (para.CacheTextencoderToDisk)
+                {
+                    sb.Append(" --cache_text_encoder_outputs_to_disk");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(para.TokensSeparator))
+            {
+                sb.Append(" --keep_tokens_separator \"").Append(para.TokensSeparator).Append('"');
+            }
+
+            if (!string.IsNullOrEmpty(para.Comment))
+            {
+                sb.Append(" --training_comment \"").Append(para.Comment).Append('"');
+            }
+
+            if (para.HighVRAM)
+            {
+                sb.Append(" --highvram");
+            }
+
+            if (para.AlphaMask)
+            {
+                sb.Append(" --alpha_mask");
+            }
+
+            sb.Append(" --loss_type \"");
+
+            switch (para.LossType)
+            {
+                case LossType.LTwo:
+                    {
+                        sb.Append("l2\"");
+                    }
+                    break;
+                case LossType.Huber:
+                    {
+                        sb.Append("huber\"");
+                        sb.Append(" --huber_c ").Append(para.HuberC.ToString());
+                        sb.Append(" --huber_schedule \"").Append(para.HuberScheduleType.ToString().ToLower()).Append('"');
+                    }
+                    break;
+                case LossType.SmoothLOne:
+                    {
+                        sb.Append("smooth_l1\"");
+                        sb.Append(" --huber_c ").Append(para.HuberC.ToString());
+                        sb.Append(" --huber_schedule \"").Append(para.HuberScheduleType.ToString().ToLower()).Append('"');
+                    }
+                    break;
+            }
+
+
+
+            if (para.SaveState)
+            {
+                sb.Append(" --save_state_on_train_end");
+            }
+
+            if (para.MaskLoss)
+            {
+                sb.Append(" --masked_loss");
+            }
+
+            if (para.DebiasedEstimation)
+            {
+                sb.Append(" --debiased_estimation");
+            }
+
+            if (para.DisableMmapLoadSafetensors)
+            {
+                sb.Append(" --disable_mmap_load_safetensors");
+            }
+
+            if (para.GradAccSteps > 1m)
+            {
+                sb.Append(" --gradient_accumulation_steps ").Append(para.GradAccSteps.ToString());
+            }
+
+            if (para.ScaleWeightNorms > 0)
+            {
+                sb.Append(" --scale_weight_norms ").Append(para.ScaleWeightNorms.ToString());
+            }
+
+            if (para.TEBatchSize > 0)
+                sb.Append(" --text_encoder_batch_size ").Append(para.TEBatchSize.ToString("0"));
+
+            if (para.ResizeInterpolationType != ResizeInterpolation.None)
+            {
+                sb.Append(" --resize_interpolation \"").Append(para.ResizeInterpolationType.ToString().ToLower()).Append('"');
+            }
+
+            if (para.TokenWarmupMin > 0)
+            {
+                sb.Append(" --token_warmup_min ").Append(para.TokenWarmupMin.ToString("0.####"));
+                if (para.TokenWarmupStep > 0)
+                {
+                    sb.Append(" --token_warmup_step ").Append(para.TokenWarmupStep.ToString("0.####"));
+                }
+            }
+
+
+
+            string str = para.AdditionalArgs.Trim();
+            str = str.Replace("\r\n", string.Empty);
+            if (!string.IsNullOrEmpty(str))
+            {
+                sb.Append(' ').Append(str);
+            }
+
+            sb.Append(GetNetworkArgsCommands());
+            return sb.ToString();
+        }
+
+        private static string GetNetworkArgsCommands()
+        {
+            if (TrainParams.Current == null)
+            {
+                Debug.WriteLine("TrainParams is NULL");
+                return string.Empty;
+            }
+            string str = TrainParams.Current.AdditionalNetworkArgs.Trim();
+            str = str.Replace("\r\n", string.Empty);
+            if (NetworkArgs.Count == 0 && string.IsNullOrEmpty(str))
+                return string.Empty;
+            StringBuilder sb = new StringBuilder();
+            sb.Append(" --network_args ");
+            for (int i = 0; i < NetworkArgs.Count; i++)
+            {
+                sb.Append('"').Append(NetworkArgs[i]).Append('"');
+                if (i < NetworkArgs.Count - 1)
+                {
+                    sb.Append(' ');
+                }
+            }
+
+            if (!string.IsNullOrEmpty(str))
+            {
+                sb.Append(' ').Append(str);
+            }
+
+            return sb.ToString();
+        }
+
+        private static string GenerateExcludePatterns()
+        {
+            if (TrainParams.Current == null)
+            {
+                Debug.WriteLine("TrainParams is NULL");
+                return string.Empty;
+            }
+            var para = TrainParams.Current;
+            List<string> excludes = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            if (para.SelfAttnLR >= 0f && para.SelfAttnLR == 0f)
+            {
+                excludes.Add("'.*self_attn.*'");
+            }
+
+            if (para.CrossAttnLR >= 0f && para.CrossAttnLR == 0f)
+            {
+                excludes.Add("'.*cross_attn.*'");
+            }
+
+            if (para.MlpLR >= 0f && para.MlpLR == 0f)
+            {
+                excludes.Add("'.*mlp.*'");
+            }
+
+            if (excludes.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                sb.Append("exclude_patterns=[");
+            }
+
+            for (int i = 0; i < excludes.Count; i++)
+            {
+                sb.Append(excludes[i]);
+                if (i < excludes.Count - 1)
+                {
+                    sb.Append(',');
+                }
+            }
+            sb.Append(']');
+
+            return sb.ToString();
+        }
+
+        private static string GenerateLrPatterns()
+        {
+            if (TrainParams.Current == null)
+            {
+                Debug.WriteLine("TrainParams is NULL");
+                return string.Empty;
+            }
+            var para = TrainParams.Current;
+            List<string> lrpatterns = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            if (para.SelfAttnLR > 0f)
+            {
+                lrpatterns.Add(".*self_attn.*=" + para.SelfAttnLR.ToString("g"));
+            }
+
+            if (para.CrossAttnLR > 0f)
+            {
+                lrpatterns.Add(".*cross_attn.*=" + para.CrossAttnLR.ToString("g"));
+            }
+
+            if (para.MlpLR > 0f)
+            {
+                lrpatterns.Add(".*mlp.*=" + para.MlpLR.ToString("g"));
+            }
+
+            if (para.LLMAdapterLR > 0f)
+            {
+                lrpatterns.Add(".*llm_adapter.*=" + para.LLMAdapterLR.ToString("g"));
+            }
+
+            if (lrpatterns.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                sb.Append("network_reg_lrs=");
+            }
+
+            for (int i = 0; i < lrpatterns.Count; i++)
+            {
+                sb.Append(lrpatterns[i]);
+                if (i < lrpatterns.Count - 1)
+                {
+                    sb.Append(',');
+                }
+            }
+            return sb.ToString();
+        }
+
+        private static void GenerateBlockWeightCmmands()
+        {
+            var para = TrainParams.Current;
+            if (para == null)
+            {
+                return;
+            }
+            if (para.ModelArchitectureEnum == ModelArchitecture.Anima || para.ModelArchitectureEnum == ModelArchitecture.Krea2)
+            {
+                return;
+            }
+            int loopNum = para.ModelArchitectureEnum == ModelArchitecture.Legacy ? 12 : 9;
+            if (para.UseBlockWeight)
+            {
+                switch (para.BlockWeightPresetTypeIn)
+                {
+                    case BlockWeightPreset.none:
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("down_lr_weight=");
+                            for (int i = 0; i < loopNum; i++)
+                            {
+                                sb.Append((0.05m * para.BlockWeightIn[i]).ToString());
+                                if (i < loopNum - 1)
+                                    sb.Append(',');
+                            }
+                            NetworkArgs.Add(sb.ToString());
+                        }
+                        break;
+                    default:
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append(" down_lr_weight=").Append(para.BlockWeightPresetTypeIn.ToString());
+                            if (para.BlockWeightOffsetIn >= 0.25m)
+                            {
+                                sb.Append('+').Append(para.BlockWeightOffsetIn.ToString());
+                            }
+                            NetworkArgs.Add(sb.ToString());
+                        }
+                        break;
+                }
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    NetworkArgs.Add("mid_lr_weight=" + (0.05m * para.BlockWeightMid).ToString() + ',' + (0.05m * para.BlockWeightMid01).ToString() + ',' + (0.05m * para.BlockWeightMid02).ToString());
+                }
+                else
+                {
+                    NetworkArgs.Add("mid_lr_weight=" + (0.05m * para.BlockWeightMid).ToString());
+                }
+
+
+                switch (para.BlockWeightPresetTypeOut)
+                {
+                    case BlockWeightPreset.none:
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("up_lr_weight=");
+                            for (int i = 0; i < loopNum; i++)
+                            {
+                                sb.Append((0.05m * para.BlockWeightOut[i]).ToString());
+                                if (i < loopNum - 1)
+                                    sb.Append(',');
+                            }
+                            NetworkArgs.Add(sb.ToString());
+                        }
+                        break;
+                    default:
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("up_lr_weight=").Append(para.BlockWeightPresetTypeOut.ToString());
+                            if (para.BlockWeightOffsetOut >= 0.25m)
+                            {
+                                sb.Append('+').Append(para.BlockWeightOffsetOut.ToString());
+                            }
+                            NetworkArgs.Add(sb.ToString());
+                        }
+                        break;
+                }
+
+                if (para.BlockWeightZeroThreshold > 0)
+                {
+                    NetworkArgs.Add("block_lr_zero_threshold=" + (0.05m * para.BlockWeightZeroThreshold).ToString());
+                }
+            }
+
+            if (para.UseBlockDim)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(para.UseConv2dExtend ? "conv_block_dims=" : "block_dims=");
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sb.Append(para.BlockDimBase).Append(',');
+                }
+                //DIM IN
+                for (int i = 0; i < loopNum; i++)
+                {
+                    sb.Append(para.BlockDimIn[i]);
+                    sb.Append(',');
+                }
+                //DIM MID
+
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sb.Append(para.BlockDimMid).Append(',').Append(para.BlockDimMid01).Append(',').Append(para.BlockDimMid02).Append(',');
+                }
+                else
+                {
+                    sb.Append(para.BlockDimMid).Append(',');
+                }
+
+                //DIM OUT
+                for (int i = 0; i < loopNum; i++)
+                {
+                    sb.Append(para.BlockDimOut[i]);
+                    if (i < loopNum - 1)
+                        sb.Append(',');
+                }
+
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sb.Append(',').Append(para.BlockDimOutSDXL);
+                }
+
+                StringBuilder sbalpha = new StringBuilder();
+                sbalpha.Append(para.UseConv2dExtend ? "conv_block_alphas=" : "block_alphas=");
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sbalpha.Append(para.BlockAlphaBase).Append(',');
+                }
+                //ALPHA IN
+                for (int i = 0; i < loopNum; i++)
+                {
+                    sbalpha.Append(para.BlockAlphaInM[i]);
+                    sbalpha.Append(',');
+                }
+                //ALPHA MID
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sbalpha.Append(para.BlockAlphaMidM).Append(',').Append(para.BlockAlphaMid01).Append(',').Append(para.BlockAlphaMid02).Append(',');
+                }
+                else
+                {
+                    sbalpha.Append(para.BlockAlphaMidM).Append(',');
+                }
+
+
+                //ALPHA OUT
+                for (int i = 0; i < loopNum; i++)
+                {
+                    sbalpha.Append(para.BlockAlphaOutM[i]);
+                    if (i < loopNum - 1)
+                        sbalpha.Append(',');
+                }
+
+                if (para.ModelArchitectureEnum == ModelArchitecture.XL)
+                {
+                    sbalpha.Append(',').Append(para.BlockAlphaOutSDXL);
+                }
+
+                NetworkArgs.Add(sb.ToString());
+                NetworkArgs.Add(sbalpha.ToString());
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Dimリサイズコマンドの実行。
+        /// </summary>
+        /// <param name="inputPath">変換元LoRA</param>
+        /// <param name="outputPath">変換後の保存先</param>
+        /// <param name="dim">このDimする</param>
+        /// <param name="cudaConversion">CUDAで変換</param>
+        internal static void ResizeLora(string inputPath, string outputPath, decimal dim, decimal convDim, bool cudaConversion)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(@"/c cd ");
+            if (!string.IsNullOrEmpty(Form1.ScriptPath))
+            {
+                sb.Append("/d ").Append(Form1.ScriptPath);
+            }
+            else
+            {
+                sb.Append(Constants.CurrentSdScriptsPath);
+            }
+
+            sb.Append(" && .\\venv\\Scripts\\activate && ");
+
+            sb.Append("python .\\networks\\resize_lora.py").Append("  --model \"").Append(inputPath).Append('"')
+                .Append("  --save_to \"").Append(outputPath).Append('"').Append("  --save_precision \"fp16\"")
+                .Append("  --new_rank ").Append(dim.ToString());
+
+            if (convDim > 0)
+            {
+                sb.Append("  --new_conv_rank ").Append(convDim.ToString());
+            }
+
+            if (cudaConversion)
+            {
+                sb.Append("  --device \"cuda\"");
+            }
+
+            ProcessStartInfo ps = new ProcessStartInfo();
+            ps.FileName = "cmd";
+            ps.Arguments = sb.ToString();
+            var process = new Process();
+            process.StartInfo = ps;
+            process.Start();
+        }
+
+        /// <summary>
+        /// Formにドロップされたアイテムのファイル名を取得する。ファイル以外/複数ドロップなら空文字を返す。
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="fileExtension">受け付けるファイルの拡張子(任意)。指定時に一致しないなら空文字を返す</param>
+        /// <returns></returns>
+        internal static string GetDroppedFileName(DragEventArgs e, string fileExtension = "")
+        {
+            if (e == null || e.Data == null)
+            {
+                return string.Empty;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                {
+                    if (!string.IsNullOrEmpty(fileExtension) && Path.GetExtension(fileName) != fileExtension)
+                    {
+                        return string.Empty;
+                    }
+
+                    return fileName;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Formにドロップされたアイテムのファイル名を取得する。ファイル以外なら空文字を返す。
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="fileExtension">受け付けるファイルの拡張子(任意)。指定時に一致しないなら空文字を返す</param>
+        /// <returns></returns>
+        internal static string[]? GetDroppedFileArray(DragEventArgs e, string fileExtension = "")
+        {
+            if (e == null || e.Data == null)
+            {
+                return null;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length > 0)
+            {
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName = files[i];
+                    if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                    {
+                        if (!string.IsNullOrEmpty(fileExtension) && Path.GetExtension(fileName) != fileExtension)
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                return files;
+            }
+
+            return null;
+        }
+
+        internal static string GetDroppedWeightName(DragEventArgs e)
+        {
+            if (e == null || e.Data == null)
+            {
+                return string.Empty;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                {
+                    if (WeightExtensionRegex.IsMatch(Path.GetExtension(fileName)))
+                    {
+                        return fileName;
+                    }
+                    return string.Empty;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// ファイルがドラッグされた時の汎用メソッド。ファイル以外/複数ドロップならカーソルをバツにする
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="fileExtension">受け付けるファイルの拡張子(任意)。指定時に一致しないならカーソルをバツにする</param>
+        internal static void CommonFileDragEnterEvent(DragEventArgs e, string fileExtension = "")
+        {
+            if (e == null || e.Data == null)
+            {
+                return;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                {
+                    if (!string.IsNullOrEmpty(fileExtension) && Path.GetExtension(fileName) != fileExtension)
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+
+                    e.Effect = DragDropEffects.Copy;
+                    return;
+                }
+            }
+
+            e.Effect = DragDropEffects.None;
+        }
+
+        internal static void CommonMultipleFileDragEnterEvent(DragEventArgs e, string fileExtension = "")
+        {
+            if(e == null)
+            {
+                return;
+            }
+
+            if (e.Data == null)
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length > 0)
+            {
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName = files[i];
+                    if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                    {
+                        if (!string.IsNullOrEmpty(fileExtension) && Path.GetExtension(fileName) != fileExtension)
+                        {
+                            e.Effect = DragDropEffects.None;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+                }
+                e.Effect = DragDropEffects.Copy;
+                return;
+            }
+            e.Effect = DragDropEffects.None;
+        }
+
+        internal static void WeightFileDragEnterEvent(DragEventArgs e)
+        {
+            if (e == null || e.Data == null)
+            {
+                return;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && File.Exists(fileName))
+                {
+                    if (WeightExtensionRegex.IsMatch(Path.GetExtension(fileName)))
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                        return;
+                    }
+                    e.Effect = DragDropEffects.None;
+                    return;
+                }
+            }
+
+            e.Effect = DragDropEffects.None;
+        }
+
+        /// <summary>
+        /// Formにドロップされたアイテムのディレクトリ名を取得する。ディレクトリ以外/複数ドロップなら空文字を返す。
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns>ディレクトリ名(フルパス)</returns>
+        internal static string GetDroppedDirectoryName(DragEventArgs e)
+        {
+            if (e == null || e.Data == null)
+            {
+                return string.Empty;
+            }
+
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && Directory.Exists(fileName))
+                {
+                    Debug.WriteLine(fileName);
+                    return fileName;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// ディレクトリがドラッグされた時の汎用メソッド。ディレクトリ以外/複数ドロップならカーソルをバツにする
+        /// </summary>
+        /// <param name="e"></param>
+        internal static void CommonDirectoryDragEvent(DragEventArgs e)
+        {
+            if (e == null || e.Data == null)
+            {
+                return;
+            }
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop, false);
+            if (files != null && files.Length == 1)
+            {
+                string fileName = files[0];
+                if (!string.IsNullOrEmpty(fileName) && Directory.Exists(fileName))
+                {
+                    e.Effect = DragDropEffects.Copy;
+                    return;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                    return;
+                }
+            }
+            e.Effect = DragDropEffects.None;
+        }
+
+        internal static void CheckAndCreateWorkDir()
+        {
+            string document = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            if (!Directory.Exists(document + @"\lora-gui"))
+            {
+                Directory.CreateDirectory(document + @"\lora-gui");
+            }
+        }
+
+        /// <summary>
+        /// キャプションのシャッフル
+        /// </summary>
+        /// <param name="targetDir">シャッフルするキャプションが入ったディレクトリ</param>
+        /// <param name="keepTokenCount">トークン保持数。コンマスペース区切り</param>
+        /// <param name="showMsg">メッセージボックスを表示</param>
+        /// <returns></returns>
+        internal static bool ShuffleCaptions(string targetDir, int keepTokenCount, bool showMsg)
+        {
+            if (!Directory.Exists(targetDir))
+            {
+                if (showMsg)
+                    MessageBox.Show("ディレクトリが見つかりません", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+            if (IsSystemDirectory(targetDir))
+            {
+                if (showMsg)
+                    MessageBox.Show("データ破損防止のため、OS関連のディレクトリは指定できません。", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            if (keepTokenCount < 0)
+            {
+                if (showMsg)
+                    MessageBox.Show("トークン保持数に0以下は指定できません。", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            string[] files = Directory.GetFiles(targetDir);
+            foreach (string file in files)
+            {
+                try
+                {
+                    string extension = Path.GetExtension(file);
+                    if (string.IsNullOrEmpty(extension) || extension != ".txt")
+                        continue;
+                    string txt = File.ReadAllText(file);
+
+                    List<string> tags = new List<string>(txt.Split(", "));
+                    if (tags.Count <= keepTokenCount)
+                    {
+                        return false;
+                    }
+
+
+                    if (tags.Count > 0)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < keepTokenCount; i++)
+                        {
+                            sb.Append(tags[0]).Append(", ");
+                            tags.RemoveAt(0);
+                        }
+
+                        tags = tags.OrderBy(a => Guid.NewGuid()).ToList();
+
+                        for (int i = 0; i < tags.Count; i++)
+                        {
+                            sb.Append(tags[i]);
+                            if (i < tags.Count - 1)
+                            {
+                                sb.Append(", ");
+                            }
+                        }
+                        File.WriteAllText(file, sb.ToString());
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine("Shuffle errored!");
+                }
+
+            }
+
+            return true;
+        }
+
+        public static bool IsSystemDirectory(string path)
+        {
+            string pth = path.ToLower();
+
+            if (SystemDirRegex.IsMatch(pth))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// PNGまたはJPEGのサイズを取得する。ファイルがないか破損している場合はSize.Emptyとなる。
+        /// </summary>
+        /// <param name="filePath">画像のパス。pngまたはjpg(jpeg)のみ</param>
+        /// <returns></returns>
+        public static Size GetImageSize(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return Size.Empty;
+
+            string extension = Path.GetExtension(filePath).ToLower();
+
+            if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+            {
+                try
+                {
+                    int height = 0;
+                    int width = 0;
+
+                    using (var image = Image.FromFile(filePath, false))
+                    {
+                        height = image.Height;
+                        width = image.Width;
+                    }
+
+                    return new Size(height, width);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    return Size.Empty;
+                }
+            }
+
+            return Size.Empty;
+
+        }
+
+        /// <summary>
+        /// レジストリの初期化。アプリケーションの起動時に呼び出してください。
+        /// </summary>
+        public static void InitRegistry()
+        {
+            int? num = (int?)Registry.GetValue("HKEY_CURRENT_USER\\Software\\kohya_lora_gui", "UpdateCheckInterval", 7);
+            if (num == null)
+            {
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\kohya_lora_gui", "UpdateCheckInterval", 7);
+            }
+            string? text = (string?)Registry.GetValue("HKEY_CURRENT_USER\\Software\\kohya_lora_gui", "LastUpdateCheckDate", string.Empty);
+            if (string.IsNullOrEmpty(text))
+            {
+                Registry.SetValue("HKEY_CURRENT_USER\\Software\\kohya_lora_gui", "LastUpdateCheckDate", "2023-01-01T12:00:00.0000000+09:00");
+            }
+
+            string? scriptPath = (string?)Registry.GetValue(@"HKEY_CURRENT_USER\Software\kohya_lora_gui", "ScriptPath", string.Empty);
+            if (scriptPath == null)
+            {
+                Registry.SetValue("HKEY_CURRENT_USER\\Software\\kohya_lora_gui", "ScriptPath", string.Empty);
+            }
+        }
+
+        /// <summary>
+        /// 最小限のPythonパッケージのインストールコマンド(torch,xformers,依存パッケージ)生成。
+        /// </summary>
+        /// <param name="UseLatestTorch">最新のTorchをインストールするか</param>
+        /// <returns>pip installコマンドの文字列</returns>
+        internal static string GenerateMinInstallCommands(bool UseLatestTorch)
+        {
+            string torch = UseLatestTorch ? Constants.LATEST_TORCH_VERSION : Constants.TORCH_VERSION;
+            string vision = UseLatestTorch ? Constants.LATEST_TORCHVISION_VERSION : Constants.TORCHVISION_VERSION;
+            string index = UseLatestTorch ? Constants.LATEST_INDEX_URL : Constants.INDEX_URL;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("pip install torch==")
+            .Append(torch).Append(" torchvision==").Append(vision)
+            .Append(" --index-url ").Append(index)
+            .Append(" && pip install --upgrade -r requirements.txt && pip install bitsandbytes==0.49.1");
+
+            return sb.ToString();
+        }
+
+    }
+}

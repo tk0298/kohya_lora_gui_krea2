@@ -1,0 +1,719 @@
+diff --git a/Kohya_lora_trainer/Form1.Designer.cs b/Kohya_lora_trainer/Form1.Designer.cs
+index 78c0bc0..709f672 100644
+--- a/Kohya_lora_trainer/Form1.Designer.cs
++++ b/Kohya_lora_trainer/Form1.Designer.cs
+@@ -100,6 +100,7 @@ namespace Kohya_lora_trainer
+             プリセットを開くToolStripMenuItem = new ToolStripMenuItem();
+             プリセットを保存ToolStripMenuItem = new ToolStripMenuItem();
+             終了ToolStripMenuItem = new ToolStripMenuItem();
++            ダークテーマToolStripMenuItem = new ToolStripMenuItem();
+             ヘルプToolStripMenuItem = new ToolStripMenuItem();
+             ヒントToolStripMenuItem = new ToolStripMenuItem();
+             配布ページToolStripMenuItem = new ToolStripMenuItem();
+@@ -387,12 +388,12 @@ namespace Kohya_lora_trainer
+             // 
+             cbxSDType.DropDownStyle = ComboBoxStyle.DropDownList;
+             cbxSDType.FormattingEnabled = true;
+-            cbxSDType.Items.AddRange(new object[] { "SD1", "SDXL", "Anima" });
++            cbxSDType.Items.AddRange(new object[] { "SD1", "SDXL", "Anima", "Krea2" });
+             cbxSDType.Location = new Point(104, 252);
+             cbxSDType.Name = "cbxSDType";
+             cbxSDType.Size = new Size(139, 23);
+             cbxSDType.TabIndex = 85;
+-            toolTip1.SetToolTip(cbxSDType, "SDXLとAnimaはVRAM消費を減らすGradient Checkpointingがほぼ必須\r\nSDXLはVRAM12GB以上を推奨\r\n10GB未満はfp8有効化推奨\r\nAnimaは512pxであれば8GB未満で済む\r\n1024px学習かつVRAM8GB以下はblock swap必須");
++            toolTip1.SetToolTip(cbxSDType, "SDXLとAnimaはVRAM消費を減らすGradient Checkpointingがほぼ必須\r\nSDXLはVRAM12GB以上を推奨\r\n10GB未満はfp8有効化推奨\r\nAnimaは512pxであれば8GB未満で済む\r\n1024px学習かつVRAM8GB以下はblock swap必須\r\nKrea2はVAEとText Encoder(Qwen3-VL)が必須\r\nfp8有効化時はfp8_scaledも自動で有効になる");
+             cbxSDType.SelectedIndexChanged += cbxSDType_SelectedIndexChanged;
+             // 
+             // tbxFileName
+@@ -415,7 +416,7 @@ namespace Kohya_lora_trainer
+             cbxModuleType.Name = "cbxModuleType";
+             cbxModuleType.Size = new Size(80, 23);
+             cbxModuleType.TabIndex = 6;
+-            toolTip1.SetToolTip(cbxModuleType, "LoRA-FAはメモリ消費がわずかに減少する\r\nLoHAとLoKrは計算が遅い\r\nAnimaはLoRA、LoHA、LoKrのみ対応");
++            toolTip1.SetToolTip(cbxModuleType, "LoRA-FAはメモリ消費がわずかに減少する\r\nLoHAとLoKrは計算が遅い\r\nAnimaはLoRA、LoHA、LoKrのみ対応\r\nKrea2はLoRAのみ対応");
+             cbxModuleType.SelectedIndexChanged += cbxModuleType_SelectedIndexChanged;
+             // 
+             // nudSaveEpoch
+@@ -524,7 +525,7 @@ namespace Kohya_lora_trainer
+             tbxModelPath.Name = "tbxModelPath";
+             tbxModelPath.Size = new Size(732, 22);
+             tbxModelPath.TabIndex = 71;
+-            toolTip1.SetToolTip(tbxModelPath, "AnimaのDiTはここに指定する");
++            toolTip1.SetToolTip(tbxModelPath, "AnimaとKrea2のDiTはここに指定する");
+             tbxModelPath.TextChanged += tbxModelPath_TextChanged;
+             tbxModelPath.DragDrop += tbxModelPath_DragDrop;
+             tbxModelPath.DragEnter += tbxModelPath_DragEnter;
+@@ -705,7 +706,7 @@ namespace Kohya_lora_trainer
+             // lblScriptPathDesc
+             // 
+             lblScriptPathDesc.AutoSize = true;
+-            lblScriptPathDesc.ForeColor = Color.Black;
++            lblScriptPathDesc.ForeColor = ThemeManager.ValidForeColor;
+             lblScriptPathDesc.Location = new Point(466, 37);
+             lblScriptPathDesc.Name = "lblScriptPathDesc";
+             lblScriptPathDesc.Size = new Size(106, 15);
+@@ -807,7 +808,7 @@ namespace Kohya_lora_trainer
+             // 
+             // ファイルToolStripMenuItem
+             // 
+-            ファイルToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 設定ToolStripMenuItem, プリセットを開くToolStripMenuItem, プリセットを保存ToolStripMenuItem, 終了ToolStripMenuItem });
++            ファイルToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 設定ToolStripMenuItem, プリセットを開くToolStripMenuItem, プリセットを保存ToolStripMenuItem, ダークテーマToolStripMenuItem, 終了ToolStripMenuItem });
+             ファイルToolStripMenuItem.Name = "ファイルToolStripMenuItem";
+             ファイルToolStripMenuItem.Size = new Size(63, 21);
+             ファイルToolStripMenuItem.Text = "ファイル";
+@@ -840,6 +841,14 @@ namespace Kohya_lora_trainer
+             終了ToolStripMenuItem.Text = "終了";
+             終了ToolStripMenuItem.Click += 終了ToolStripMenuItem_Click_1;
+             // 
++            // ダークテーマToolStripMenuItem
++            // 
++            ダークテーマToolStripMenuItem.CheckOnClick = true;
++            ダークテーマToolStripMenuItem.Name = "ダークテーマToolStripMenuItem";
++            ダークテーマToolStripMenuItem.Size = new Size(159, 22);
++            ダークテーマToolStripMenuItem.Text = "ダークテーマ";
++            ダークテーマToolStripMenuItem.Click += ダークテーマToolStripMenuItem_Click;
++            // 
+             // ヘルプToolStripMenuItem
+             // 
+             ヘルプToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ヒントToolStripMenuItem, 配布ページToolStripMenuItem, sdscriptsリポジトリToolStripMenuItem });
+@@ -1349,6 +1358,7 @@ namespace Kohya_lora_trainer
+         private ToolStripMenuItem プリセットを開くToolStripMenuItem;
+         private ToolStripMenuItem プリセットを保存ToolStripMenuItem;
+         private ToolStripMenuItem 終了ToolStripMenuItem;
++        private ToolStripMenuItem ダークテーマToolStripMenuItem;
+         private ToolStripMenuItem ヘルプToolStripMenuItem;
+         private ToolStripMenuItem ヒントToolStripMenuItem;
+         private ToolStripMenuItem 配布ページToolStripMenuItem;
+diff --git a/Kohya_lora_trainer/Form1.cs b/Kohya_lora_trainer/Form1.cs
+index 5f79ffd..9f35722 100644
+--- a/Kohya_lora_trainer/Form1.cs
++++ b/Kohya_lora_trainer/Form1.cs
+@@ -37,11 +37,14 @@ namespace Kohya_lora_trainer
+         public Form1()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+             new TrainParams();
+         }
+ 
+         private void Form1_Load(object sender, EventArgs e)
+         {
++            ダークテーマToolStripMenuItem.Checked = ThemeManager.IsDarkMode;
++
+             //レジストリからsd-scriptsの場所を取ってくる
+             tbxModelPath.Text = string.Empty;
+             tbxImagePath.Text = string.Empty;
+@@ -84,7 +87,7 @@ namespace Kohya_lora_trainer
+                 }
+                 else
+                 {
+-                    lblScriptPathDesc.ForeColor = Color.Black;
++                    lblScriptPathDesc.ForeColor = ThemeManager.ValidForeColor;
+                     lblScriptPathDesc.Text = "sd-scriptsの場所変更";
+                 }
+ #else
+@@ -210,7 +213,7 @@ namespace Kohya_lora_trainer
+                 else
+                 {
+                     HaveNonAscillInModelPath = false;
+-                    tbxModelPath.ForeColor = Color.Black;
++                    tbxModelPath.ForeColor = ThemeManager.ValidForeColor;
+                 }
+             }
+         }
+@@ -259,7 +262,7 @@ namespace Kohya_lora_trainer
+                 para.TrainImagePath = cof.FileName;
+                 tbxImagePath.Text = para.TrainImagePath;
+                 UpdateTotalStepCount();
+-                tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : Color.Black;
++                tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : ThemeManager.ValidForeColor;
+                 if (CheckUtil.HaveNonAsciiOrSpace(cof.FileName) && !IsInvalidImageFolder)
+                 {
+                     tbxImagePath.ForeColor = Color.Orange;
+@@ -299,7 +302,7 @@ namespace Kohya_lora_trainer
+                 HaveNonAscillInRegFolder = false;
+ 
+ 
+-                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : Color.Black;
++                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : ThemeManager.ValidForeColor;
+                 if (CheckUtil.HaveNonAsciiOrSpace(para.RegImagePath) && !IsInvalidRegFolder)
+                 {
+                     tbxRegImgPath.ForeColor = Color.Orange;
+@@ -343,7 +346,7 @@ namespace Kohya_lora_trainer
+                 }
+                 else
+                 {
+-                    tbxOutputPath.ForeColor = Color.Black;
++                    tbxOutputPath.ForeColor = ThemeManager.ValidForeColor;
+                 }
+             }
+         }
+@@ -396,7 +399,7 @@ namespace Kohya_lora_trainer
+                 }
+                 else
+                 {
+-                    lblLR.ForeColor = Color.Black;
++                    lblLR.ForeColor = ThemeManager.ValidForeColor;
+                     if (changeParam)
+                         para.LearningRate = lr;
+                     IsInvalidLR = false;
+@@ -418,7 +421,7 @@ namespace Kohya_lora_trainer
+             }
+             para.Resolution = (int)nudResolution.Value;
+             IsInvalidResolution = nudResolution.Value % 64 != 0;
+-            lblResolution.ForeColor = IsInvalidResolution ? Color.Red : Color.Black;
++            lblResolution.ForeColor = IsInvalidResolution ? Color.Red : ThemeManager.ValidForeColor;
+         }
+ 
+         private void nudBatchSize_ValueChanged(object sender, EventArgs e)
+@@ -791,6 +794,14 @@ namespace Kohya_lora_trainer
+                         return false;
+                     }
+                     break;
++                case ModelArchitecture.Krea2:
++                    if (!File.Exists(str + "krea2_train_network.py"))
++                    {
++                        if (showMsg)
++                            MessageBox.Show("krea2_train_network.pyが見つかりません。\r\nsd-scriptsのアップデートをお試しください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
++                        return false;
++                    }
++                    break;
+             }
+             if (!Directory.Exists(str + "venv"))
+             {
+@@ -1027,6 +1038,22 @@ namespace Kohya_lora_trainer
+                 }
+             }
+ 
++            if (para.ModelArchitectureEnum == ModelArchitecture.Krea2)
++            {
++                if (!File.Exists(para.VAEPath))
++                {
++                    if (showMsg)
++                        MessageBox.Show("Krea2はVAE(Qwen-Image VAE)が必須ですが、ファイルが見つかりません(または未指定)。\r\n詳細設定->パスにて正しいファイルを指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
++                    return false;
++                }
++                if (!File.Exists(para.Qwen3Path))
++                {
++                    if (showMsg)
++                        MessageBox.Show("Krea2はText Encoder(Qwen3-VL-4B)が必須ですが、ファイルが見つかりません(または未指定)。\r\n詳細設定->パスにてQwen3 TEの欄に正しいファイルを指定してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
++                    return false;
++                }
++            }
++
+             return true;
+         }
+ 
+@@ -1142,7 +1169,7 @@ namespace Kohya_lora_trainer
+             }
+             else
+             {
+-                tbxOutputPath.ForeColor = Color.Black;
++                tbxOutputPath.ForeColor = ThemeManager.ValidForeColor;
+                 HaveNonAscillInOutputPath = false;
+             }
+         }
+@@ -1329,7 +1356,7 @@ namespace Kohya_lora_trainer
+             }
+             else
+             {
+-                tbxModelPath.ForeColor = Color.Black;
++                tbxModelPath.ForeColor = ThemeManager.ValidForeColor;
+                 HaveNonAscillInModelPath = false;
+             }
+         }
+@@ -1365,7 +1392,7 @@ namespace Kohya_lora_trainer
+             else
+             {
+                 IsInvalidImageFolder = !CheckUtil.IsImageDirectoryValid(para.TrainImagePath, out StepsPerEpoch);
+-                tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : Color.Black;
++                tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : ThemeManager.ValidForeColor;
+                 HaveNonAscillInImageFolder = false;
+             }
+             UpdateTotalStepCount();
+@@ -1389,7 +1416,7 @@ namespace Kohya_lora_trainer
+             if (string.IsNullOrEmpty(para.RegImagePath))
+             {
+                 UpdateTotalStepCount();
+-                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : Color.Black;
++                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : ThemeManager.ValidForeColor;
+                 HaveNonAscillInRegFolder = false;
+                 return;
+             }
+@@ -1411,7 +1438,7 @@ namespace Kohya_lora_trainer
+             {
+                 int num = 0;
+                 IsInvalidRegFolder = !CheckUtil.IsImageDirectoryValid(para.RegImagePath, out num);
+-                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : Color.Black;
++                tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : ThemeManager.ValidForeColor;
+                 HaveNonAscillInRegFolder = false;
+             }
+             UpdateTotalStepCount();
+@@ -1442,8 +1469,8 @@ namespace Kohya_lora_trainer
+             }
+             else
+             {
+-                lblFileName.ForeColor = Color.Black;
+-                tbxFileName.ForeColor = Color.Black;
++                lblFileName.ForeColor = ThemeManager.ValidForeColor;
++                tbxFileName.ForeColor = ThemeManager.ValidForeColor;
+             }
+             IsInvalidOutputName = false;
+         }
+@@ -1514,7 +1541,7 @@ namespace Kohya_lora_trainer
+             HaveNonAscillInOutputPath = false;
+             //ModelPath
+             tbxModelPath.Text = para.ModelPath;
+-            tbxModelPath.ForeColor = Color.Black;
++            tbxModelPath.ForeColor = ThemeManager.ValidForeColor;
+             if (!File.Exists(para.ModelPath))
+             {
+                 tbxModelPath.ForeColor = Color.Red;
+@@ -1528,7 +1555,7 @@ namespace Kohya_lora_trainer
+             //TrainImage
+             tbxImagePath.Text = para.TrainImagePath;
+             IsInvalidImageFolder = !CheckUtil.IsImageDirectoryValid(para.TrainImagePath, out StepsPerEpoch);
+-            tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : Color.Black;
++            tbxImagePath.ForeColor = IsInvalidImageFolder ? Color.Red : ThemeManager.ValidForeColor;
+             if (CheckUtil.HaveNonAsciiOrSpace(para.TrainImagePath))
+             {
+                 tbxImagePath.ForeColor = Color.Orange;
+@@ -1546,7 +1573,7 @@ namespace Kohya_lora_trainer
+             {
+                 IsInvalidRegFolder = false;
+             }
+-            tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : Color.Black;
++            tbxRegImgPath.ForeColor = IsInvalidRegFolder ? Color.Red : ThemeManager.ValidForeColor;
+ 
+             if (CheckUtil.HaveNonAsciiOrSpace(para.RegImagePath))
+             {
+@@ -1555,7 +1582,7 @@ namespace Kohya_lora_trainer
+             }
+ 
+             //OutputPath
+-            tbxOutputPath.ForeColor = Color.Black;
++            tbxOutputPath.ForeColor = ThemeManager.ValidForeColor;
+             tbxOutputPath.Text = para.OutputPath;
+             if (CheckUtil.HaveNonAsciiOrSpace(para.OutputPath))
+             {
+@@ -1575,7 +1602,7 @@ namespace Kohya_lora_trainer
+             //Reso
+             nudResolution.Value = para.Resolution;
+             IsInvalidResolution = para.Resolution % 64 != 0;
+-            lblResolution.ForeColor = IsInvalidResolution ? Color.Red : Color.Black;
++            lblResolution.ForeColor = IsInvalidResolution ? Color.Red : ThemeManager.ValidForeColor;
+             //BatchSize
+             nudBatchSize.Value = para.BatchSize;
+             //NetworkDim
+@@ -1594,7 +1621,7 @@ namespace Kohya_lora_trainer
+             cbxModuleType.SelectedIndex = (int)para.ModuleType;
+             //OutputName
+             tbxFileName.Text = para.OutputName;
+-            tbxFileName.ForeColor = Color.Black;
++            tbxFileName.ForeColor = ThemeManager.ValidForeColor;
+             if (CheckUtil.HaveNonAsciiOrSpace(tbxFileName.Text))
+             {
+                 tbxFileName.ForeColor = Color.Orange;
+@@ -1716,6 +1743,21 @@ namespace Kohya_lora_trainer
+                     return MessageBox.Show("AnimaはHuber ScheduleにSNRは使用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                 }
+             }
++            else if (para.ModelArchitectureEnum == ModelArchitecture.Krea2)
++            {
++                if (para.UseBlockWeight || para.UseBlockDim)
++                {
++                    return MessageBox.Show("層別学習が有効になっていますがKrea2では非対応のため、\r\n層別学習を使用せず開始します。よろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
++                }
++                if (para.ModuleType != NetworkModule.LoRA && para.ModuleType != NetworkModule.LoRAFA)
++                {
++                    return MessageBox.Show("Krea2はLoRA(またはLoRA-FA)のみ対応ですが、\r\n別のモジュールが指定されています。それでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
++                }
++                if (para.HuberScheduleType == HuberSchedule.SNR && para.LossType != LossType.LTwo)
++                {
++                    return MessageBox.Show("Krea2はHuber ScheduleにSNRは使用できません。\r\nそれでも開始してよろしいですか。", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
++                }
++            }
+             else
+             {
+                 if ((para.UseBlockWeight || para.UseBlockDim) && ((para.ModelArchitectureEnum != ModelArchitecture.Legacy && para.ModelArchitectureEnum != ModelArchitecture.XL) || para.ModuleType == NetworkModule.LyCORIS))
+@@ -1754,6 +1796,12 @@ namespace Kohya_lora_trainer
+             Application.Exit();
+         }
+ 
++        private void ダークテーマToolStripMenuItem_Click(object sender, EventArgs e)
++        {
++            ThemeManager.IsDarkMode = ダークテーマToolStripMenuItem.Checked;
++            MessageBox.Show("変更を反映するにはGUIを再起動してください。", "Note", MessageBoxButtons.OK, MessageBoxIcon.Information);
++        }
++
+         private void プリセットを開くToolStripMenuItem_Click(object sender, EventArgs e)
+         {
+             ShowLoadPresetDialog();
+@@ -2172,6 +2220,14 @@ namespace Kohya_lora_trainer
+                         }
+                     }
+                     break;
++                case ModelArchitecture.Krea2:
++                    {
++                        // Krea2はDiT内の全263個のLinear層をLoRA化する(TARGET_REPLACE_MODULES=None)。
++                        // sum(in_features+out_features) = 3,622,797 (single_mmdit_large_wide構成から算出)。
++                        // fp16保存想定: dim * 3,622,797 * 2byte / 1024 = dim * 7076.7188 KB
++                        filesize = 7076.7188m * para.NetworkDim;
++                    }
++                    break;
+                 default:
+                     lblPredictedLoraFilesizeTitle.Enabled = false;
+                     lblPredictedLoraFilesize.Text = string.Empty;
+diff --git a/Kohya_lora_trainer/FormAdvanced.Designer.cs b/Kohya_lora_trainer/FormAdvanced.Designer.cs
+index 8be0210..50ef190 100644
+--- a/Kohya_lora_trainer/FormAdvanced.Designer.cs
++++ b/Kohya_lora_trainer/FormAdvanced.Designer.cs
+@@ -103,6 +103,7 @@ namespace Kohya_lora_trainer
+             nudTokenWarmupStep = new NumericUpDown();
+             nudTEBatchSize = new NumericUpDown();
+             nudBlocksToSwap = new NumericUpDown();
++            cbxUseFP8Scaled = new CheckBox();
+             cbxDisableVAECache = new CheckBox();
+             cbxCpuOffloadAsync = new CheckBox();
+             cbxAdvancedTrain = new ComboBox();
+@@ -1073,6 +1074,17 @@ namespace Kohya_lora_trainer
+             nudBlocksToSwap.TabIndex = 0;
+             toolTip1.SetToolTip(nudBlocksToSwap, "一部のブロックをCPUに置くことで\r\n速度低下を抑えつつVRAM消費を減らす");
+             // 
++            // cbxUseFP8Scaled
++            // 
++            cbxUseFP8Scaled.AutoSize = true;
++            cbxUseFP8Scaled.Location = new Point(340, 160);
++            cbxUseFP8Scaled.Name = "cbxUseFP8Scaled";
++            cbxUseFP8Scaled.Size = new Size(155, 19);
++            cbxUseFP8Scaled.TabIndex = 37;
++            cbxUseFP8Scaled.Text = "fp8_scaledを使う(Krea2)";
++            toolTip1.SetToolTip(cbxUseFP8Scaled, "Krea2専用。DiTを動的スケールfp8で量子化しVRAM消費を減らす\r\n他のアーキテクチャでは無視される");
++            cbxUseFP8Scaled.UseVisualStyleBackColor = true;
++            // 
+             // cbxDisableVAECache
+             // 
+             cbxDisableVAECache.AutoSize = true;
+@@ -2596,6 +2608,7 @@ namespace Kohya_lora_trainer
+             tabPage8.Controls.Add(label68);
+             tabPage8.Controls.Add(label67);
+             tabPage8.Controls.Add(nudBlocksToSwap);
++            tabPage8.Controls.Add(cbxUseFP8Scaled);
+             tabPage8.Controls.Add(label55);
+             tabPage8.Controls.Add(label59);
+             tabPage8.Controls.Add(cbxConvertVaeTwoD);
+@@ -2613,7 +2626,7 @@ namespace Kohya_lora_trainer
+             tabPage8.Name = "tabPage8";
+             tabPage8.Size = new Size(660, 349);
+             tabPage8.TabIndex = 14;
+-            tabPage8.Text = "Anima";
++            tabPage8.Text = "Anima/Krea2";
+             tabPage8.UseVisualStyleBackColor = true;
+             // 
+             // label63
+@@ -2677,7 +2690,7 @@ namespace Kohya_lora_trainer
+             label58.Name = "label58";
+             label58.Size = new Size(99, 15);
+             label58.TabIndex = 2;
+-            label58.Text = "Anima固有の設定";
++            label58.Text = "Anima/Krea2固有の設定";
+             // 
+             // label61
+             // 
+@@ -3025,6 +3038,7 @@ namespace Kohya_lora_trainer
+         private Label label58;
+         private Label label55;
+         private NumericUpDown nudBlocksToSwap;
++        private CheckBox cbxUseFP8Scaled;
+         private Button btnClearQwen3Path;
+         private Button btnQwen3Path;
+         private Label label62;
+diff --git a/Kohya_lora_trainer/FormAdvanced.cs b/Kohya_lora_trainer/FormAdvanced.cs
+index ffa053e..dad1e8e 100644
+--- a/Kohya_lora_trainer/FormAdvanced.cs
++++ b/Kohya_lora_trainer/FormAdvanced.cs
+@@ -19,6 +19,7 @@ namespace Kohya_lora_trainer
+         public FormAdvanced()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void button1_Click(object sender, EventArgs e)
+@@ -452,6 +453,7 @@ namespace Kohya_lora_trainer
+             para.UseFullBf16 = cbxUseFullBf16.Checked;
+             para.TokensSeparator = tbxTokensSeparator.Text;
+             para.UseFP8Base = cbxUseFP8.Checked;
++            para.UseFP8Scaled = cbxUseFP8Scaled.Checked;
+ 
+             para.WeightDocomposition = cbxWeightDecomposition.Checked;
+             para.TrainNorm = cbxTrainNorm.Checked;
+@@ -540,10 +542,10 @@ namespace Kohya_lora_trainer
+             nudMultiresNoiseIterations.Value = para.MultiresNoiseIterations;
+             nudMultiresNoiseDiscount.Value = para.MultiresNoiseDiscount;
+             bool valid = nudMinBucketReso.Value % 64 == 0;
+-            lblMinBucketReso.ForeColor = valid ? Color.Black : Color.Red;
++            lblMinBucketReso.ForeColor = valid ? ThemeManager.ValidForeColor : Color.Red;
+ 
+             valid = nudMaxBucketReso.Value % 64 == 0;
+-            lblMaxBucketReso.ForeColor = valid ? Color.Black : Color.Red;
++            lblMaxBucketReso.ForeColor = valid ? ThemeManager.ValidForeColor : Color.Red;
+ 
+             lblLoRAmodelPath.Text = para.LoraModelPath;
+             nudNoiseOffset.Value = (decimal)para.NoiseOffset;
+@@ -604,6 +606,7 @@ namespace Kohya_lora_trainer
+             cbxUseFullBf16.Checked = para.UseFullBf16;
+             tbxTokensSeparator.Text = para.TokensSeparator;
+             cbxUseFP8.Checked = para.UseFP8Base;
++            cbxUseFP8Scaled.Checked = para.UseFP8Scaled;
+ 
+             cbxWeightDecomposition.Checked = para.WeightDocomposition;
+             cbxTrainNorm.Checked = para.TrainNorm;
+@@ -722,13 +725,13 @@ namespace Kohya_lora_trainer
+         private void nudMinBucketReso_ValueChanged(object sender, EventArgs e)
+         {
+             bool valid = nudMinBucketReso.Value % 64 == 0;
+-            lblMinBucketReso.ForeColor = valid ? Color.Black : Color.Red;
++            lblMinBucketReso.ForeColor = valid ? ThemeManager.ValidForeColor : Color.Red;
+         }
+ 
+         private void nudMaxBucketReso_ValueChanged(object sender, EventArgs e)
+         {
+             bool valid = nudMaxBucketReso.Value % 64 == 0;
+-            lblMaxBucketReso.ForeColor = valid ? Color.Black : Color.Red;
++            lblMaxBucketReso.ForeColor = valid ? ThemeManager.ValidForeColor : Color.Red;
+         }
+ 
+         private void btnSelectLoRAmodel_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormBatchProcess.cs b/Kohya_lora_trainer/FormBatchProcess.cs
+index 96d3c5d..8d62f00 100644
+--- a/Kohya_lora_trainer/FormBatchProcess.cs
++++ b/Kohya_lora_trainer/FormBatchProcess.cs
+@@ -18,6 +18,7 @@ namespace Kohya_lora_trainer
+         public FormBatchProcess()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnDiscardChanges_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormBlockDim.cs b/Kohya_lora_trainer/FormBlockDim.cs
+index 34fd760..4568b8a 100644
+--- a/Kohya_lora_trainer/FormBlockDim.cs
++++ b/Kohya_lora_trainer/FormBlockDim.cs
+@@ -19,6 +19,7 @@ namespace Kohya_lora_trainer {
+         public FormBlockDim()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnDiscardChanges_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormBlockWeight.cs b/Kohya_lora_trainer/FormBlockWeight.cs
+index e348b83..fe6fe0c 100644
+--- a/Kohya_lora_trainer/FormBlockWeight.cs
++++ b/Kohya_lora_trainer/FormBlockWeight.cs
+@@ -20,6 +20,7 @@ namespace Kohya_lora_trainer {
+         public FormBlockWeight()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnDiscardChanges_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormDatasetTools.cs b/Kohya_lora_trainer/FormDatasetTools.cs
+index dc85327..b37c442 100644
+--- a/Kohya_lora_trainer/FormDatasetTools.cs
++++ b/Kohya_lora_trainer/FormDatasetTools.cs
+@@ -17,6 +17,7 @@ namespace Kohya_lora_trainer
+         public FormDatasetTools()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void cbxUseRegEx_CheckedChanged(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormInstaller.cs b/Kohya_lora_trainer/FormInstaller.cs
+index 8a33193..ba618d8 100644
+--- a/Kohya_lora_trainer/FormInstaller.cs
++++ b/Kohya_lora_trainer/FormInstaller.cs
+@@ -17,6 +17,7 @@ namespace Kohya_lora_trainer
+         public FormInstaller()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnInstall_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormOptTips.cs b/Kohya_lora_trainer/FormOptTips.cs
+index 2934bd2..b7cf2af 100644
+--- a/Kohya_lora_trainer/FormOptTips.cs
++++ b/Kohya_lora_trainer/FormOptTips.cs
+@@ -15,6 +15,7 @@ namespace Kohya_lora_trainer
+         public FormOptTips()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnOK_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormSettings.cs b/Kohya_lora_trainer/FormSettings.cs
+index 339190d..0ff4618 100644
+--- a/Kohya_lora_trainer/FormSettings.cs
++++ b/Kohya_lora_trainer/FormSettings.cs
+@@ -18,6 +18,7 @@ namespace Kohya_lora_trainer
+         public FormSettings()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+         private void btnSelectModel_Click(object sender, EventArgs e)
+diff --git a/Kohya_lora_trainer/FormUtils.cs b/Kohya_lora_trainer/FormUtils.cs
+index a8c95e2..49d1525 100644
+--- a/Kohya_lora_trainer/FormUtils.cs
++++ b/Kohya_lora_trainer/FormUtils.cs
+@@ -13,6 +13,7 @@ namespace Kohya_lora_trainer
+         public FormUtils()
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+         }
+ 
+ 
+diff --git a/Kohya_lora_trainer/MyUtils.cs b/Kohya_lora_trainer/MyUtils.cs
+index 81a61dd..32d00ec 100644
+--- a/Kohya_lora_trainer/MyUtils.cs
++++ b/Kohya_lora_trainer/MyUtils.cs
+@@ -164,6 +164,9 @@ namespace Kohya_lora_trainer
+                 case ModelArchitecture.Anima:
+                     sb.Append(" anima_train_network.py");
+                     break;
++                case ModelArchitecture.Krea2:
++                    sb.Append(" krea2_train_network.py");
++                    break;
+                 default:
+                     sb.Append(" train_network.py");
+                     break;
+@@ -205,6 +208,9 @@ namespace Kohya_lora_trainer
+                             case ModelArchitecture.Anima:
+                                 sb.Append(" --network_module \"networks.lora_anima\"");
+                                 break;
++                            case ModelArchitecture.Krea2:
++                                sb.Append(" --network_module \"networks.lora_krea2\"");
++                                break;
+                         }
+                     }
+                     break;
+@@ -651,7 +657,7 @@ namespace Kohya_lora_trainer
+             }
+ 
+             //U-netのStable Diffusion専用オプション
+-            if (para.ModelArchitectureEnum != ModelArchitecture.Anima)
++            if (para.ModelArchitectureEnum == ModelArchitecture.Legacy || para.ModelArchitectureEnum == ModelArchitecture.XL)
+             {
+                 if (para.MaxTokens > 75)
+                     sb.Append(" --max_token_length ").Append(para.MaxTokens);
+@@ -703,7 +709,7 @@ namespace Kohya_lora_trainer
+                     sb.Append(" --fp8_base");
+                 }
+             }
+-            else //Diffusion Transformer+Flow matchingのAnima専用
++            else if (para.ModelArchitectureEnum == ModelArchitecture.Anima) //Diffusion Transformer+Flow matchingのAnima専用
+             {
+ 
+                 if (!string.IsNullOrEmpty(para.Qwen3Path))
+@@ -768,6 +774,44 @@ namespace Kohya_lora_trainer
+                 }
+ 
+             }
++            else if (para.ModelArchitectureEnum == ModelArchitecture.Krea2) //Diffusion Transformer+Flow matchingのKrea2専用
++            {
++                // Qwen3Pathの欄はKrea2ではQwen3-VL-4B Text Encoderのパスとして流用する
++                if (!string.IsNullOrEmpty(para.Qwen3Path))
++                {
++                    sb.Append(" --text_encoder \"").Append(para.Qwen3Path).Append('"');
++                }
++
++                if (para.BlocksToSwap > 0)
++                {
++                    sb.Append(" --blocks_to_swap ").Append(para.BlocksToSwap.ToString());
++                }
++
++                if (para.UseFP8Scaled)
++                {
++                    // Krea2はscaled fp8のみ対応。--fp8_baseは不要(--fp8_scaled単体で動的量子化が有効になる)。
++                    sb.Append(" --fp8_scaled");
++                }
++
++                sb.Append(" --timestep_sampling \"").Append(para.TimestepSamplingEnum.ToString().ToLower()).Append('"');
++
++                switch (para.TimestepSamplingEnum)
++                {
++                    case TimestepSampling.Sigma:
++                    case TimestepSampling.Shift:
++                        {
++                            sb.Append(" --discrete_flow_shift ").Append(para.DiscreteFlowShift.ToString("0.####"));
++                        }
++                        break;
++                    case TimestepSampling.Sigmoid:
++                        {
++                            sb.Append(" --sigmoid_scale ").Append(para.Sigmoidscale.ToString("0.####"));
++                        }
++                        break;
++                    default:
++                        break;
++                }
++            }
+ 
+             if (para.TextEncoderLR > 0)
+             {
+@@ -1067,7 +1111,7 @@ namespace Kohya_lora_trainer
+             {
+                 return;
+             }
+-            if (para.ModelArchitectureEnum == ModelArchitecture.Anima)
++            if (para.ModelArchitectureEnum == ModelArchitecture.Anima || para.ModelArchitectureEnum == ModelArchitecture.Krea2)
+             {
+                 return;
+             }
+diff --git a/Kohya_lora_trainer/TrainForm.cs b/Kohya_lora_trainer/TrainForm.cs
+index 23cfb16..e0d20ee 100644
+--- a/Kohya_lora_trainer/TrainForm.cs
++++ b/Kohya_lora_trainer/TrainForm.cs
+@@ -24,12 +24,14 @@ namespace Kohya_lora_trainer
+         public TrainForm(bool shutdownOnly)
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+             ShutdownOnly = shutdownOnly;
+         }
+ 
+         public TrainForm(bool shutdownOnly, string? currentPresetPath)
+         {
+             InitializeComponent();
++            ThemeManager.ApplyIfEnabled(this);
+             CurrentPresetPath = currentPresetPath;
+             ShutdownOnly = shutdownOnly;
+         }
+diff --git a/Kohya_lora_trainer/TrainParams.cs b/Kohya_lora_trainer/TrainParams.cs
+index dd02166..e802a26 100644
+--- a/Kohya_lora_trainer/TrainParams.cs
++++ b/Kohya_lora_trainer/TrainParams.cs
+@@ -88,7 +88,7 @@ namespace Kohya_lora_trainer
+         [XmlIgnore]
+         public ModelArchitecture ModelArchitectureEnum = ModelArchitecture.Legacy;
+ 
+-        public bool NoHalfVAE = false, CacheTextencoder = false, CacheTextencoderToDisk = false, IsEpoch = true, UseFullBf16 = false, UseFP8Base = false, RelativeStep = true, ScaleParameter = true, SaveState = false, MaskLoss = false, AlphaMask = false;
++        public bool NoHalfVAE = false, CacheTextencoder = false, CacheTextencoderToDisk = false, IsEpoch = true, UseFullBf16 = false, UseFP8Base = false, UseFP8Scaled = false, RelativeStep = true, ScaleParameter = true, SaveState = false, MaskLoss = false, AlphaMask = false;
+         public bool RandomNoiseOffset = false, RandomIpNoiseGamma = false, SaveWeightEveryEpoch = true;
+         public string TokensSeparator = string.Empty;
+ 
+@@ -550,6 +550,7 @@ namespace Kohya_lora_trainer
+         Legacy,
+         XL,
+         Anima,
++        Krea2,
+     }
+ 
+     public enum TrainCompleteAction
