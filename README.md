@@ -3,102 +3,68 @@
 ![GUI Image](./images/image0.jpg)
 
 
-https://github.com/kohya-ss/sd-scripts のLoRA学習用のパラメータをGUI上で設定してコマンドラインに渡すWindows専用のGUIです。
-sd-scriptsのkrea2対応forkを利用してください。
-https://github.com/tk0298/sd-scripts.git
+# Krea 2 対応パッチについて
 
+これは [RedRayz/Kohya_lora_param_gui](https://github.com/RedRayz/Kohya_lora_param_gui) に対する非公式の追加パッチです。
+Krea 2 (K2) のLoRA学習をGUIから行えるようにする変更が含まれています。
 
-gradioを使用するものと比べ以下のメリットがあります。
-- python、gradioを使用しないためファイルサイズが小さく起動が早い
-- Webアプリではなく従来のデスクトップアプリのため軽量
-- 比較的コンパクトなUI
+**本家のKohya_lora_param_guiにはこの変更は含まれていません。** 本家開発者(RedRayz氏)にこのパッチについて問い合わせるのはご遠慮ください。不具合はこのパッチの導入元にご連絡ください。
 
-## 他の機能
-* 学習パラメータのプリセットをXMLで保存/読込
-* tensorboardの起動
-* GUI終了時の設定を記憶、次回起動時に復元
-* 複数LoRAの一括学習
-* Dimのリサイズ
-* sd-scriptsのインストール・更新
+## 前提条件
 
-## 注意事項
-簡易インストーラか手動で[sd-scriptsのREADME](https://github.com/kohya-ss/sd-scripts/blob/main/README-ja.md)の方法でセットアップしている環境を前提としています。bmaltais氏のkohya_ssで作成した環境は非対応とします。
+このパッチは [kohya-ss/sd-scriptsのFork](https://github.com/tk0298/sd-scripts) 側にKrea 2用の学習スクリプト一式(`krea2_train_network.py`および`library/krea2_*.py`, `networks/lora_krea2.py`)が導入済みであることを前提としています。GUI単体では学習できません。
 
-NVIDIA製グラフィックボードを搭載したパソコンでの動作を想定しています。
+sd-scripts側のvenvには以下が必要です。
 
-高DPIモニターではGUIの表示がぼやけます。ご了承ください。(スケーリングの挙動がおかしいので高dpi対応はやめた)
+* `transformers >= 4.57`（Qwen3-VLのサポートに必要）
+* 上記に合わせて `diffusers` も最新版に更新（古いdiffusersは新しいtransformersと非互換のためimportエラーになります）
+* RTX 50xx (Blackwell, sm_120) 世代のGPUを使う場合は、CUDA 12.8以降でビルドされたPyTorch
+  ```
+  pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+  ```
+* (任意) Windows用Triton。`pip install triton-windows`。無くても学習は動きますが、入れていないと`triton not found`という警告が出ます(動作に支障はありません)。
 
-このソフトウェアは「現状のまま」提供され、一切の保証はありません。また、このソフトウェアを使用したことによる損害などについて開発者は一切の責任を負いません。自己責任でご利用ください。
+## 追加された項目
 
-このGUIはコマンドを生成し、sd-scriptsに渡しているだけであり直接の関係はありません。sd-scripts開発者にGUIについて問い合わせる行為はご遠慮ください。
+### モデル選択
 
-## 「スマート アプリ コントロールが安全でない可能性のあるアプリをブロックしました」の対処
-これは個人製作のアプリなどあまり認知されていないものをブロックするWindowsの機能です。
+「モデルタイプ」のコンボボックスに **Krea2** が追加されています。
 
-次のページを見て「スマート アプリ コントロール」をオフにしてください。
+### パス関連（既存の欄を流用）
 
-http://faq3.dospara.co.jp/faq/show/15260?category_id=1&site_domain=default
+| GUI上の項目 | Krea2での用途 |
+|---|---|
+| 事前学習モデルのパス | Krea 2のDiTウェイト(raw.safetensors等) |
+| VAEのパス | Qwen-Image VAE |
+| Qwen3 TEのパス | Qwen3-VL-4B Text Encoder（Animaと共用の欄です） |
 
-## インストール方法
+いずれも必須です。指定が無いか、ファイルが存在しない場合は学習開始前に警告が出ます。
 
-2つあります。好きなほうをご利用ください。
+### 詳細設定 → 「Anima/Krea2」タブ
 
-### A.GUIの簡易インストーラーを使用する
+Animaと共用のタブです。以下の項目がKrea2でもそのまま使えます。
 
-0.あらかじめ[git](https://git-scm.com/downloads/win)と[Python 3.13](https://www.python.org/ftp/python/3.13.14/python-3.13.14-amd64.exe)をインストールしておく。これらはsd-scriptsが必要とするものです。
+* スワップするブロック数（block swap、VRAM節約用）
+* Timestep Sampling（`shift`または`sigmoid`推奨）
+* 離散フローシフト（Timestep Sampling = Shiftのとき使用。K2公式では1024x1024で2.5前後が目安）
+* Sigmoid Scale（Timestep Sampling = Sigmoidのとき使用）
+* **fp8_scaledを使う(Krea2)** ← 今回新規追加したチェックボックス。DiTを動的スケールfp8で量子化し、VRAM消費を抑えます。Krea2選択時のみ意味を持ち、他のアーキテクチャでは無視されます。
 
-- この時点で理解できないかstable-diffusion-webuiのインストールが難しい人は学習も難しいと思われます。
-- CUDA Toolkitのインストールは不要です。PyTorchにCUDAランタイムが同梱されています。
+なお、Self/Cross-Attention LR、MLP LR、LLM Adapter LRの各項目はAnima専用です。Krea2のLoRA(全Linear層を対象とする単一ストリーム構成)には対応する概念が無いため、Krea2選択時は無視されます。
 
-1.[releases](https://github.com/RedRayz/Kohya_lora_param_gui/releases)からkohya_lora_param_gui-x.x.x.zipをDLする
+### 対応モジュールタイプ
 
-2.zipを解凍し、中にあるexeファイルをダブルクリックしてGUIを起動する。
+Krea2は現状 **LoRA / LoRA-FA のみ対応**です。LyCORIS・DyLoRA・LoHA・LoKrを選択した場合、学習開始前に確認ダイアログが出ますが、動作は保証されません。
 
-このとき英語で.NET Runtimeのインストーラーをダウンロードするか聞かれたら「はい」を押してダウンロードしてインストールしてから、再度起動してください。
+### 層別学習非対応
 
-3.GUIの上部にある「簡易インストーラー」をクリックして表示されるウィンドウに書いてある説明を読んでから、インストールボタンを押す。
+Block Weight / Block Dim(層別学習)はKrea2の構造上サポートしていません。有効になっている場合は無視される旨の確認ダイアログが出ます。
 
-### B.手動インストール
-簡易インストールがうまくいかないか違うバージョンのtorchを入れたい場合はこちら
+## 既知の制限
 
-1.[sd-scriptsのREADME](https://github.com/kohya-ss/sd-scripts/blob/main/README-ja.md)の方法でsd-scriptsの導入をする
+* Turbo版チェックポイントでのサンプル生成切り替え(RAW学習→Turboで画像生成)には対応していません。RAWで学習し、生成時にTurboチェックポイント+保存されたLoRAを使う運用は問題なく可能です。
+* GUI側のLoRAファイルサイズ予測はKrea2の実際のモデル構造(全263個のLinear層)から解析的に算出した値を使用していますが、実測値との照合はまだ行っていません。
 
-2.[releases](https://github.com/RedRayz/Kohya_lora_param_gui/releases)からkohya_lora_gui-x.x.x.zipをDLする
+## 動作確認について
 
-3.zipを解凍してできたフォルダをsd-scriptsと同じ階層のフォルダに移動させる(sd-scriptsの中ではない!)
-
-注意: ディレクトリの階層は次のようにします。また、sd-scriptsとGUIの親フォルダの名称に半角英数字以外と空白を使用しますと、不具合を引き起こすことがありますので、名称は半角英数字のみで設定してください。
-
-![directory](./images/image1.png)
-
-## 起動方法
-Kohya_lora_trainer.exeをダブルクリックする。ショートカット作ると便利かも?
-
-## 動作環境
-* Windows 10/11 21H2(x86-64)以降
-
-なお、Armアーキテクチャ(Snapdragonなど)のCPUは非対応です。
-
-* [.NET Desktop Runtime 9.0](https://dotnet.microsoft.com/ja-jp/download/dotnet/thank-you/runtime-desktop-9.0.3-windows-x64-installer)
-
-* Python 3.11、3.12または3.13
-
-それ以外のPythonではsd-scriptsが動作しない可能性があります。Python 3.14以降ではおそらく動作しません。
-
-* Git
-
-* Turing以降のNVIDIA製GPU
-
-Torch 2.8.0以降では、Volta以前のNVIDIA製GPUは非対応になります。さらに、2025年10月以降はNVIDIAによるドライバ更新は脆弱性修正のみとなります。
-
-Intel ArcやAMD Radeon環境では手動でPyTorchをインストールしてください。xformersはPyTorch内蔵のsdpaに対する優位性がないためインストールは不要です。
-
-* 最新のGPUドライバ
-
-簡易インストーラーおよびvenv再生成ではCUDA 13.0用のPyTorchをインストールします。あらかじめバージョン580以降のドライバをインストールしてください。
-
-## ガイドなど
-
-* [LoRA作成チュートリアル](https://note.com/redrayz/n/n05e93566e562)
-* [学習のヒントなど](./docs/tips.md)
-* サンプルプリセット: https://mega.nz/folder/ILdnzaxT#gTGQmcPUgdxKlLpIl9x__g
+このパッチはC#側のビルド確認・実機での動作検証を継続中です。エラーが出た場合は、エラーメッセージとともに使用したコマンドライン(生成された`accelerate launch ...`の全文)を添えて報告してください。
